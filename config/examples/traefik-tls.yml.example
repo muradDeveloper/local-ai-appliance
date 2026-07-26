@@ -1,0 +1,9 @@
+tls:
+  certificates:
+    - certFile: /etc/traefik/certs/ai-home-arpa.crt
+      keyFile: /etc/traefik/certs/ai-home-arpa.key
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/traefik/certs/ai-home-arpa.crt
+        keyFile: /etc/traefik/certs/ai-home-arpa.key

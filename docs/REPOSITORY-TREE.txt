@@ -1,0 +1,66 @@
+.env.example
+.github/
+  workflows/
+    validate.yml
+.gitignore
+AGENTS.md
+CLAUDE.md
+LICENSE
+README.md
+backup/
+  backup.sh
+compose/
+  authentik/
+  ollama/
+  open-webui/
+  postgres/
+    init/
+      01-create-databases.sh
+  traefik/
+    certs/
+      .gitkeep
+    dynamic/
+compose.yml
+config/
+  examples/
+    traefik-tls.yml.example
+docs/
+  ARCHITECTURE.md
+  BACKUP-RESTORE.md
+  DECISIONS.md
+  INSTALLATION.html
+  INSTALLATION.md
+  MODEL-GUIDE.md
+  OPERATIONS.md
+  SECURITY.md
+  TROUBLESHOOTING.md
+  decisions/
+    ADR-001-proxmox-vm.md
+    ADR-002-traefik.md
+    ADR-003-authentik-oidc.md
+    ADR-004-postgresql.md
+    ADR-005-backups.md
+  images/
+    architecture.png
+    backup-flow.png
+  reference/
+    SOURCES.md
+  runbooks/
+    PRE-UPGRADE.md
+    USER-ONBOARDING.md
+  security/
+    THREAT-MODEL.md
+knowledge/
+  murad-private/
+    .gitkeep
+  shared/
+    .gitkeep
+  user2-private/
+    .gitkeep
+restore/
+  restore.md
+scripts/
+  generate-secrets.sh
+  health-check.sh
+  preflight.sh
+  update.sh

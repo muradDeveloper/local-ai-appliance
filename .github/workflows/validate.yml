@@ -1,0 +1,19 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell syntax
+        run: |
+          find scripts backup restore compose -type f -name '*.sh' -print0 |
+            xargs -0 -r -n1 bash -n
+      - name: Check forbidden secret files
+        run: |
+          test ! -f .env
+          ! find . -type f \( -name '*.key' -o -name '*.p12' -o -name '*.pfx' \) | grep .

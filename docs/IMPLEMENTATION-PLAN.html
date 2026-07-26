@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>local-ai-appliance — Implementation Plan</title>
+  <style>
+    :root {
+      --bg-base:      #0d1117;
+      --bg-elevated:  #161b22;
+      --bg-card:      #1c2128;
+      --bg-sidebar:   #0b0f14;
+      --border:       #30363d;
+      --border-light: #21262d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted:   #484f58;
+      --blue:         #58a6ff;
+      --green:        #3fb950;
+      --yellow:       #d29922;
+      --red:          #f85149;
+      --purple:       #bc8cff;
+      --orange:       #ffa657;
+      --phase-active: #1f6feb;
+      --phase-done:   #238636;
+      --phase-idle:   #21262d;
+      --carbon: repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 2px,
+        rgba(255,255,255,.012) 2px,
+        rgba(255,255,255,.012) 4px
+      );
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 210px;
+      min-width: 210px;
+      background: var(--bg-sidebar);
+      background-image: var(--carbon);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 18px 14px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .sidebar-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue);
+      word-break: break-word;
+      line-height: 1.3;
+    }
+    .sidebar-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .sidebar-section {
+      padding: 10px 0 4px;
+    }
+    .sidebar-section-title {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      padding: 0 14px 4px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 11px;
+      border-left: 2px solid transparent;
+      transition: all .12s;
+      cursor: pointer;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      color: var(--text-primary);
+      background: rgba(88,166,255,.06);
+      border-left-color: var(--blue);
+    }
+    .phase-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--phase-idle);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+    .sidebar-link.s-done .phase-dot  { background: var(--phase-done);   border-color: var(--phase-done);   color: #fff; }
+    .sidebar-link.s-active .phase-dot{ background: var(--phase-active);  border-color: var(--phase-active); color: #fff; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-progress-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+    .mini-bar { height: 3px; background: var(--phase-idle); border-radius: 2px; overflow: hidden; }
+    .mini-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--phase-active), var(--green));
+      border-radius: 2px;
+      transition: width .35s ease;
+      width: 0%;
+    }
+    .reset-btn {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 10px;
+      padding: 4px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* Page header */
+    .page-header {
+      background: var(--bg-elevated);
+      background-image: var(--carbon);
+      border-bottom: 1px solid var(--border);
+      padding: 22px 28px 18px;
+    }
+    .page-header-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 5px;
+    }
+    .page-header h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .page-header p  { font-size: 12px; color: var(--text-secondary); max-width: 600px; }
+    .status-chip {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 10px;
+      margin-left: 10px;
+      font-weight: 600;
+      background: rgba(210,153,34,.15);
+      color: var(--yellow);
+      border: 1px solid rgba(210,153,34,.3);
+      vertical-align: middle;
+    }
+
+    /* Stepper */
+    .stepper-wrap {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      overflow-x: auto;
+    }
+    .stepper {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      min-width: max-content;
+    }
+    .step-unit { display: flex; flex-direction: column; align-items: center; }
+    .step-row  { display: flex; align-items: center; }
+    .step-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--phase-idle);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      z-index: 1;
+    }
+    .step-unit.s-done .step-circle   { background: var(--phase-done);   border-color: var(--phase-done);   color: #fff; }
+    .step-unit.s-active .step-circle { background: var(--phase-active);  border-color: var(--phase-active); color: #fff; box-shadow: 0 0 0 3px rgba(31,111,235,.25); }
+    .step-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 5px;
+      max-width: 58px;
+      line-height: 1.25;
+    }
+    .step-unit.s-done .step-label, .step-unit.s-active .step-label { color: var(--text-secondary); }
+    .step-connector {
+      width: 36px;
+      height: 2px;
+      background: var(--border);
+      margin-bottom: 19px;
+      transition: background .25s;
+      flex-shrink: 0;
+    }
+    .step-connector.done { background: var(--phase-done); }
+
+    /* Overall progress */
+    .overall-bar {
+      padding: 10px 28px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .overall-bar-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+    .overall-bar-track {
+      flex: 1;
+      height: 5px;
+      background: var(--phase-idle);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .overall-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--phase-active), var(--green));
+      border-radius: 3px;
+      transition: width .35s ease;
+      width: 0%;
+    }
+    .overall-bar-pct {
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 700;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* Content */
+    .content { padding: 24px 28px 48px; }
+
+    /* Pre-conditions */
+    .precond-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 28px;
+    }
+    .precond-card h3 {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .precond-card ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .precond-card li {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .precond-card li::before {
+      content: '◆';
+      font-size: 6px;
+      color: var(--blue);
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Phase sections */
+    .phase-section { margin-bottom: 36px; scroll-margin-top: 12px; }
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .phase-number {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--phase-idle);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+    .phase-section.s-done .phase-number   { background: var(--phase-done);   border-color: var(--phase-done);   color: #fff; }
+    .phase-section.s-active .phase-number { background: var(--phase-active);  border-color: var(--phase-active); color: #fff; }
+    .phase-header h2 { font-size: 15px; font-weight: 600; flex: 1; }
+    .phase-prog-mini {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .phase-prog-track {
+      width: 56px;
+      height: 3px;
+      background: var(--phase-idle);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .phase-prog-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 2px;
+      transition: width .3s ease;
+    }
+    .phase-goal {
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: rgba(88,166,255,.05);
+      border-left: 2px solid var(--blue);
+      padding: 7px 10px;
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    /* ── Goal accordion ── */
+    .goal-accordion { margin-bottom: 12px; }
+    .goal-header {
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: rgba(88,166,255,.05);
+      border-left: 2px solid var(--blue);
+      padding: 7px 10px;
+      border-radius: 0 4px 4px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+    .goal-header[data-expandable] { cursor: pointer; }
+    .goal-header[data-expandable]:hover { background: rgba(88,166,255,.09); }
+    .goal-accordion.open .goal-header { border-radius: 0 4px 0 0; }
+    .goal-panel {
+      display: none;
+      padding: 12px 14px;
+      background: rgba(13,17,23,.5);
+      border-left: 2px solid var(--blue);
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-radius: 0 0 4px 0;
+      margin-bottom: 0;
+    }
+    .goal-accordion.open .goal-panel { display: block; }
+
+    /* ── Task accordion ── */
+    .task-list { display: flex; flex-direction: column; gap: 3px; }
+    .task-accordion { border-radius: 6px; }
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color .12s;
+    }
+    .task-accordion.open .task-header { border-radius: 6px 6px 0 0; }
+    .task-header:hover { border-color: rgba(88,166,255,.35); }
+    .task-accordion.done .task-header { opacity: .55; }
+    .task-accordion.done .task-text   { text-decoration: line-through; color: var(--text-muted); }
+
+    .task-checkbox {
+      width: 15px;
+      height: 15px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg-base);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+    }
+    .task-accordion.done .task-checkbox { background: var(--green); border-color: var(--green); }
+    .task-checkbox::after {
+      content: '';
+      display: none;
+      width: 7px;
+      height: 4px;
+      border-left: 1.5px solid #fff;
+      border-bottom: 1.5px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+    .task-accordion.done .task-checkbox::after { display: block; }
+
+    .task-text { flex: 1; font-size: 12px; line-height: 1.4; }
+    .task-id   { font-family: 'SF Mono', Consolas, monospace; font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+
+    /* Expand chevron — shared by goal and task accordions */
+    .expand-icon {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-left: auto;
+      flex-shrink: 0;
+      transition: transform .2s;
+      line-height: 1;
+      user-select: none;
+    }
+    .goal-accordion.open .expand-icon,
+    .task-accordion.open .expand-icon { transform: rotate(90deg); }
+
+    /* ── Accordion panels ── */
+    .task-panel {
+      display: none;
+      padding: 12px 14px 12px 38px;
+      background: rgba(13,17,23,.6);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+    }
+    .task-accordion.open .task-panel { display: block; }
+
+    /* Panel content shared styles */
+    .task-panel, .goal-panel {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .task-panel p,         .goal-panel p         { margin: 4px 0 8px; }
+    .task-panel ul,        .goal-panel ul         { padding-left: 18px; margin: 6px 0; }
+    .task-panel li,        .goal-panel li         { margin: 3px 0; }
+    .task-panel strong,    .goal-panel strong      { color: var(--text-primary); }
+    .task-panel blockquote,.goal-panel blockquote  {
+      border-left: 2px solid var(--yellow);
+      padding: 4px 10px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-style: italic;
+      margin: 6px 0;
+      background: rgba(210,153,34,.04);
+      border-radius: 0 3px 3px 0;
+    }
+    .task-panel pre, .goal-panel pre {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+      color: var(--text-primary);
+      margin: 6px 0;
+      white-space: pre;
+    }
+    /* Tables (e.g. VM resource requirements in Phase -1 details) */
+    .task-panel table, .goal-panel table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin: 8px 0;
+    }
+    .task-panel th, .goal-panel th {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      text-align: left;
+      font-weight: 600;
+    }
+    .task-panel td, .goal-panel td {
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .task-badge {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 2px 7px;
+      border-radius: 9px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-outstanding { background: rgba(210,153,34,.15); color: var(--yellow); border: 1px solid rgba(210,153,34,.3); }
+    .badge-deferred    { background: rgba(88,166,255,.12);  color: var(--blue);   border: 1px solid rgba(88,166,255,.25); }
+    .badge-critical    { background: rgba(248,81,73,.12);   color: var(--red);    border: 1px solid rgba(248,81,73,.25); }
+
+    /* Open items table */
+    .open-items { margin-bottom: 36px; }
+    .open-items h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .open-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 3px;
+    }
+    .open-item-num {
+      font-family: 'SF Mono', Consolas, monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      width: 20px;
+      flex-shrink: 0;
+    }
+    .open-item-text { flex: 1; font-size: 12px; color: var(--text-secondary); }
+    .open-item-phase { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+
+    code {
+      font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+      font-size: 10.5px;
+      background: rgba(110,118,129,.15);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--orange);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-label">Project</div>
+    <div class="sidebar-name">local-ai-appliance</div>
+    <div class="sidebar-sub">Internal AI — Proxmox VM</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Phases</div>
+    <div id="sidebar-phases"></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Jump to</div>
+    <a class="sidebar-link" onclick="scrollTo('open-items')">
+      <span style="font-size:11px">⚑</span> Open items
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-progress-row">
+      <span>Overall progress</span>
+      <span id="sidebar-pct">0%</span>
+    </div>
+    <div class="mini-bar">
+      <div class="mini-bar-fill" id="sidebar-bar"></div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">Reset all</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ MAIN -->
+<div class="main">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-meta">Implementation Plan · 25/07/2026</div>
+    <h1>local-ai-appliance <span class="status-chip">Pre-deployment</span></h1>
+    <p>Private GPU-accelerated AI appliance — Authentik OIDC, Ollama inference, Open WebUI, Mem0 long-term memory, voice I/O, nightly backups. Proxmox Ubuntu VM · RTX 3060 12 GB.</p>
+  </div>
+
+  <!-- Phase stepper -->
+  <div class="stepper-wrap">
+    <div class="stepper" id="stepper"></div>
+  </div>
+
+  <!-- Overall progress bar -->
+  <div class="overall-bar">
+    <div class="overall-bar-label">Tasks completed</div>
+    <div class="overall-bar-track">
+      <div class="overall-bar-fill" id="overall-fill"></div>
+    </div>
+    <div class="overall-bar-pct" id="overall-pct">0%</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content"></div>
+
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────────────────
+// DATA  — mirrors docs/IMPLEMENTATION-PLAN.md
+// To update: edit the tasks/phases here, then update the .md file
+//            to match (keep both in sync).
+// ──────────────────────────────────────────────────────────────────
+const PHASES = [
+  {
+    id: 'phase--1',
+    label: 'Phase −1',
+    title: 'Phase −1 — Proxmox VM provisioning',
+    goal: 'Ubuntu Server VM running on Proxmox with static LAN IP, PCIe GPU passthrough active, Docker installed, and repository cloned.',
+    details: '<p><strong>Minimum VM resource requirements:</strong></p>\n<table><thead><tr><th>Resource</th><th>Minimum</th><th>Notes</th></tr></thead><tbody><tr><td>vCPUs</td><td>8</td><td>CPU type: <code>host</code> — required for GPU passthrough and AVX support</td></tr><tr><td>RAM</td><td>32 GB</td><td>Ollama keeps models resident; Authentik and PostgreSQL each need headroom</td></tr><tr><td>OS disk</td><td>32 GB</td><td>Thin-provisioned, local-lvm or ZFS</td></tr><tr><td>Data disk</td><td>200 GB</td><td>Separate virtual disk mounted at <code>/var/lib/docker</code> — holds images, volumes, model weights</td></tr><tr><td>GPU</td><td>RTX 3060 12 GB</td><td>Full PCIe passthrough — not vGPU</td></tr><tr><td>Network</td><td>VirtIO</td><td>Static IP <code>192.168.1.63</code>; bridge to LAN</td></tr><tr><td>OS</td><td>Ubuntu Server 24.04 LTS</td><td>Minimal install; no desktop</td></tr></tbody></table>\n',
+    tasks: [
+      { id: '−1.1', text: 'Enable IOMMU on the Proxmox host', body: '<p>In <code>/etc/default/grub</code> on the Proxmox host add <code>intel_iommu=on iommu=pt</code> (Intel) or <code>amd_iommu=on iommu=pt</code> (AMD) to <code>GRUB_CMDLINE_LINUX_DEFAULT</code>, then:</p>\n<pre><code>update-grub &amp;&amp; reboot</code></pre>\n<p>After reboot confirm IOMMU groups contain the RTX 3060:</p>\n<pre><code>dmesg | grep -e DMAR -e IOMMU | head -20</code></pre>\n' },
+      { id: '−1.2', text: 'Create the VM in Proxmox', body: '<p>Via the Proxmox web UI or CLI:</p>\n<pre><code>qm create 200 \\\n  --name ai-appliance \\\n  --cores 8 --cpu host \\\n  --memory 32768 \\\n  --net0 virtio,bridge=vmbr0 \\\n  --scsihw virtio-scsi-pci \\\n  --scsi0 local-lvm:32 \\          # OS disk\n  --scsi1 local-lvm:200 \\         # Data disk\n  --cdrom local:iso/ubuntu-24.04-live-server-amd64.iso \\\n  --boot order=ide2 \\\n  --ostype l26</code></pre>\n<p>Adjust storage pool names to match your Proxmox configuration.</p>\n' },
+      { id: '−1.3', text: 'Add PCIe passthrough for the RTX 3060', body: '<p>Find the PCI address of the GPU:</p>\n<pre><code>lspci | grep -i nvidia</code></pre>\n<p>Add the device to the VM (replace <code>01:00</code> with the address found above):</p>\n<pre><code>qm set 200 --hostpci0 01:00,pcie=1,x-vga=0</code></pre>\n<blockquote><code>x-vga=0</code> keeps the Proxmox console on the host GPU. Set <code>x-vga=1</code> only if you intend this VM to own the display.</blockquote>\n' },
+      { id: '−1.4', text: 'Install Ubuntu Server 24.04 LTS', body: '<p>Start the VM and complete the Ubuntu installer:</p>\n<ul><li>Hostname: <code>ai-appliance</code></li><li>Static IP: <code>192.168.1.63/24</code>, gateway <code>192.168.1.1</code>, DNS <code>192.168.1.1</code></li><li>Install OpenSSH server</li><li>No additional snaps</li><li>Format the data disk (<code>/dev/sdb</code>) as ext4 and mount at <code>/var/lib/docker</code> during partitioning, or post-install:</li></ul>\n<p>  ``<code>bash   mkfs.ext4 /dev/sdb   echo \'/dev/sdb /var/lib/docker ext4 defaults 0 2\' | sudo tee -a /etc/fstab   sudo mkdir -p /var/lib/docker   sudo mount -a   </code>``</p>\n' },
+      { id: '−1.5', text: 'Install NVIDIA drivers and Docker', body: '<pre><code># NVIDIA driver\nsudo apt update\nsudo apt install -y nvidia-driver-570 nvidia-utils-570\n\n# Docker Engine\ncurl -fsSL https://get.docker.com | sudo sh\nsudo usermod -aG docker $USER\nnewgrp docker\n\n# NVIDIA Container Toolkit\ncurl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \\\n  sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg\ncurl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \\\n  sed \'s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g\' | \\\n  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list\nsudo apt update &amp;&amp; sudo apt install -y nvidia-container-toolkit\nsudo nvidia-ctk runtime configure --runtime=docker\nsudo systemctl restart docker</code></pre>\n' },
+      { id: '−1.6', text: 'Verify GPU passthrough', body: '<pre><code>nvidia-smi\ndocker run --rm --gpus all ubuntu:24.04 nvidia-smi</code></pre>\n<p>Both must show the RTX 3060 before proceeding.</p>\n' },
+      { id: '−1.7', text: 'Clone the repository', body: '<pre><code>git clone https://github.com/&lt;your-org&gt;/local-ai-appliance.git /opt/ai-appliance\ncd /opt/ai-appliance</code></pre>\n<p><strong>Acceptance criteria:</strong> VM reachable at <code>192.168.1.63</code>; <code>nvidia-smi</code> shows RTX 3060 12 GB; Docker container GPU test passes; repository cloned.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-0',
+    label: 'Phase 0',
+    title: 'Phase 0 — Pre-flight',
+    goal: 'Produce a valid <code>.env</code> in the project root with all secrets generated and no <code>CHANGE_ME</code> values. All scripts pass syntax check. <code>preflight.sh</code> exits 0.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>Modify: <code>scripts/generate-secrets.sh</code></li><li>Modify (manually): <code>.env.example</code></li><li>Produce: <code>.env</code> (from <code>compose/.env</code> + secret generation)</li></ul>\n',
+    tasks: [
+      { id: '0.1', text: 'Move env file to project root', body: '<p>The working env file landed in <code>compose/.env</code> during the documentation sprint (dotfile restriction). Move it to where Docker Compose expects it:</p>\n<pre><code>mv compose/.env .env</code></pre>\n' },
+      { id: '0.2', text: 'Add missing placeholders to <code>.env.example</code>', body: '<p>These keys exist in <code>compose.yml</code> but are absent from <code>.env.example</code>. Add them manually:</p>\n<pre><code>ACME_EMAIL=CHANGE_ME\nCF_DNS_API_TOKEN=CHANGE_ME\nKOKORO_IMAGE=CHANGE_ME\nMEM0_IMAGE=CHANGE_ME\nMEM0_LLM_MODEL=CHANGE_ME\nMEM0_DB_NAME=CHANGE_ME\nMEM0_DB_USER=CHANGE_ME\nMEM0_DB_PASSWORD=CHANGE_ME</code></pre>\n' },
+      { id: '0.3', text: 'Add <code>MEM0_DB_PASSWORD</code> to <code>generate-secrets.sh</code>', body: '<p>Insert before the <code>chmod 600</code> line in <code>scripts/generate-secrets.sh</code>:</p>\n<pre><code>replace_value MEM0_DB_PASSWORD "$(random_hex 24)"</code></pre>\n<p>Validate syntax:</p>\n<pre><code>bash -n scripts/generate-secrets.sh</code></pre>\n' },
+      { id: '0.4', text: 'Generate secrets and verify no <code>CHANGE_ME</code> values remain', body: '<pre><code>./scripts/generate-secrets.sh\ngrep CHANGE_ME .env   # must return nothing</code></pre>\n<p>Manually set any remaining env vars that <code>generate-secrets.sh</code> does not auto-generate: <code>ACME_EMAIL</code>, <code>CF_DNS_API_TOKEN</code>, <code>TRAEFIK_BIND_IP</code>, <code>AUTH_FQDN</code>, <code>AI_FQDN</code>, <code>OPENID_PROVIDER_URL</code>, <code>OPENID_REDIRECT_URI</code>, <code>OAUTH_CLIENT_ID</code>, <code>OAUTH_CLIENT_SECRET</code>. (OIDC values are filled after Phase 1.3.)</p>\n' },
+      { id: '0.5', text: 'Pin <code>:latest</code> image tags', body: '<p>Check current release tags on each image registry, then set the pinned values in <code>.env</code>:</p>\n<table><thead><tr><th>Variable</th><th>Image</th><th>Registry</th></tr></thead><tbody><tr><td><code>FASTER_WHISPER_IMAGE</code></td><td><code>fedirz/faster-whisper-server</code></td><td>hub.docker.com</td></tr><tr><td><code>KOKORO_IMAGE</code></td><td><code>ghcr.io/remsky/kokoro-fastapi-cpu</code></td><td>ghcr.io</td></tr><tr><td><code>MEM0_IMAGE</code></td><td><code>mem0ai/mem0</code></td><td>hub.docker.com</td></tr></tbody></table>\n' },
+      { id: '0.6', text: 'Run preflight and config validation', body: '<pre><code>./scripts/preflight.sh\ndocker compose --env-file .env config &gt;/dev/null\nbash -n scripts/*.sh backup/*.sh restore/*.sh</code></pre>\n<p><strong>Acceptance criteria:</strong> all three commands exit 0.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-1',
+    label: 'Phase 1',
+    title: 'Phase 1 — Core infrastructure',
+    goal: 'Traefik serves HTTPS with a valid Let\'s Encrypt certificate. Authentik UI reachable at <code>https://auth.murs-local.net</code>. PostgreSQL and Redis are healthy. OIDC provider configured and client credentials recorded in <code>.env</code>.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>No code changes — configuration and deployment only</li></ul>\n',
+    tasks: [
+      { id: '1.1', text: 'Start infrastructure services', body: '<pre><code>docker compose up -d traefik redis postgres authentik-server authentik-worker\nwatch docker compose ps</code></pre>\n<p>Wait for all services to reach <code>healthy</code>. Authentik has a 60 s start period.</p>\n' },
+      { id: '1.2', text: 'Verify TLS certificate', body: '<p>Open <code>https://auth.murs-local.net</code>. Confirm:</p>\n<ul><li>Valid certificate issued by Let\'s Encrypt</li><li>Authentik initial setup wizard appears</li></ul>\n<p>If certificate not issued within 2 minutes:</p>\n<pre><code>docker compose logs traefik | grep -i acme</code></pre>\n' },
+      { id: '1.3', text: 'Complete Authentik initial configuration', body: '<p>In the Authentik admin UI:</p>\n<p>1. Create groups: <code>ai-admins</code> and <code>ai-users</code> 2. Assign each user to the appropriate group 3. Create OAuth2/OIDC provider <code>open-webui</code> — Client type: Confidential, Redirect URI: <code>https://ai.murs-local.net/oauth/oidc/callback</code>, Scopes: <code>openid email profile groups</code> 4. Add groups scope mapping that emits <code>groups</code> as a list of group names; associate with provider 5. Create application bound to the provider, accessible to both groups 6. Note Client ID and Client Secret</p>\n<p>Update <code>.env</code> with OIDC values:</p>\n<pre><code>OAUTH_CLIENT_ID=&lt;client-id&gt;\nOAUTH_CLIENT_SECRET=&lt;client-secret&gt;\nOPENID_PROVIDER_URL=https://auth.murs-local.net/application/o/&lt;slug&gt;/\nOPENID_REDIRECT_URI=https://ai.murs-local.net/oauth/oidc/callback</code></pre>\n<p>Full walkthrough: <code>docs/INSTALLATION.md</code> section 7 and <code>docs/runbooks/USER-ONBOARDING.md</code>.</p>\n<p><strong>Acceptance criteria:</strong> Authentik admin UI accessible; groups created; OIDC provider configured; client credentials in <code>.env</code>.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-2',
+    label: 'Phase 2',
+    title: 'Phase 2 — LLM inference',
+    goal: 'Ollama is running with confirmed GPU passthrough. Mem0 embedding and LLM models pulled and available. First inference model loaded and responding from GPU.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>No code changes — deployment and model pulls only</li></ul>\n',
+    tasks: [
+      { id: '2.1', text: 'Confirm GPU passthrough', body: '<pre><code>nvidia-smi\ndocker run --rm --gpus all ubuntu:24.04 nvidia-smi</code></pre>\n<p>Both must succeed before proceeding.</p>\n' },
+      { id: '2.2', text: 'Start Ollama and confirm healthy', body: '<pre><code>docker compose up -d ollama\ndocker compose ps ollama</code></pre>\n' },
+      { id: '2.3', text: 'Pull Mem0-required models', body: '<pre><code>docker exec ollama ollama pull nomic-embed-text\ndocker exec ollama ollama pull qwen2.5-coder:14b-instruct-q4_K_M</code></pre>\n<p>Set <code>MEM0_LLM_MODEL=qwen2.5-coder:14b-instruct-q4_K_M</code> in <code>.env</code>.</p>\n' },
+      { id: '2.4', text: 'Pull first inference model and verify GPU allocation', body: '<pre><code>docker exec ollama ollama pull hermes3:8b\nnvidia-smi\ndocker exec ollama ollama ps</code></pre>\n<blockquote>Verify Gemma 4 tag names on <code>ollama.com/library</code> before pulling any <code>gemma4</code> variant — tags were not confirmed during the planning session.</blockquote>\n<p><strong>Acceptance criteria:</strong> <code>ollama ps</code> shows a loaded model; <code>nvidia-smi</code> shows GPU memory allocated.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-3',
+    label: 'Phase 3',
+    title: 'Phase 3 — Open WebUI',
+    goal: 'Open WebUI reachable at <code>https://ai.murs-local.net</code>. Both users log in via OIDC with correct roles. At least one model usable.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>No code changes — deployment and OIDC configuration only</li></ul>\n',
+    tasks: [
+      { id: '3.1', text: 'Start Open WebUI and confirm healthy', body: '<pre><code>docker compose up -d open-webui\ndocker compose ps open-webui</code></pre>\n' },
+      { id: '3.2', text: 'Verify OIDC login and role mapping', body: '<p>Open <code>https://ai.murs-local.net</code>:</p>\n<ul><li>Confirm only the OIDC button appears — no username/password form</li><li>Log in as admin user → confirm admin role in Open WebUI settings</li><li>Log in as standard user → confirm user role; admin panel not accessible</li></ul>\n' },
+      { id: '3.3', text: 'Configure models and shared knowledge', body: '<p>As admin: confirm Ollama models appear; set default model; upload shared knowledge documents to the shared knowledge collection.</p>\n<p><strong>Acceptance criteria:</strong> both users logged in with correct roles; at least one model responds.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-4',
+    label: 'Phase 4',
+    title: 'Phase 4 — Voice pipeline',
+    goal: 'faster-whisper (STT) and Kokoro (TTS) healthy. In-browser voice transcription and audio playback functional.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>No code changes — deployment only</li></ul>\n',
+    tasks: [
+      { id: '4.1', text: 'Start voice services and confirm healthy', body: '<pre><code>docker compose up -d faster-whisper kokoro\ndocker compose ps faster-whisper kokoro</code></pre>\n<blockquote>Kokoro downloads voice model files on first start. Allow up to 60 s for the health check to pass.</blockquote>\n' },
+      { id: '4.2', text: 'Verify STT (speech-to-text)', body: '<p>In Open WebUI: enable microphone, record a short message, confirm transcription appears.</p>\n<p>If it fails:</p>\n<pre><code>docker exec ai-open-webui curl -fs http://faster-whisper:8000/health</code></pre>\n' },
+      { id: '4.3', text: 'Verify TTS (text-to-speech)', body: '<p>In Open WebUI: enable TTS, send a message, confirm audio playback of the response.</p>\n<p>If it fails:</p>\n<pre><code>docker exec ai-open-webui curl -fs http://kokoro:8880/v1/audio/voices</code></pre>\n<p><strong>Acceptance criteria:</strong> STT transcription and TTS playback both function in-browser.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-5',
+    label: 'Phase 5',
+    title: 'Phase 5 — Memory layer (Mem0)',
+    goal: 'Mem0 running and healthy. An Open WebUI Filter function injects per-user memories into the system prompt and saves new turns to Mem0 after each response. Per-user isolation verified.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>Create: <code>compose/open-webui/mem0-filter.py</code> (source for Open WebUI Functions UI paste)</li></ul>\n',
+    tasks: [
+      { id: '5.1', text: 'Start Mem0 and confirm connectivity', body: '<pre><code>docker compose up -d mem0\ndocker compose ps mem0\ndocker compose logs mem0 | head -40</code></pre>\n<p>Confirm logs show successful connection to PostgreSQL and Ollama.</p>\n' },
+      { id: '5.2', text: 'Create the Filter function file', body: '<p>Write <code>compose/open-webui/mem0-filter.py</code>:</p>\n<pre><code>from typing import Optional\n\nMEM0_BASE_URL = "http://mem0:8000"\n\n\nclass Filter:\n    async def inlet(self, body: dict, __user__: Optional[dict] = None) -&gt; dict:\n        if not __user__:\n            return body\n        user_id = __user__["id"]  # stable OWI UUID created from OIDC sub on first login\n        messages = body.get("messages", [])\n        last_user_msg = next(\n            (m["content"] for m in reversed(messages) if m.get("role") == "user"),\n            None,\n        )\n        if not last_user_msg:\n            return body\n\n        import httpx\n        try:\n            resp = httpx.post(\n                f"{MEM0_BASE_URL}/search",\n                json={"query": last_user_msg, "filters": {"user_id": user_id}, "top_k": 10},\n                timeout=5.0,\n            )\n            results = resp.json().get("results", [])\n        except Exception:\n            return body  # memory unavailable — degrade gracefully\n\n        if results:\n            memory_text = "\\n".join(f"- {r[\'memory\']}" for r in results)\n            body.setdefault("messages", []).insert(0, {\n                "role": "system",\n                "content": f"Relevant memories about this user:\\n{memory_text}",\n            })\n        return body\n\n    async def outlet(self, body: dict, __user__: Optional[dict] = None) -&gt; dict:\n        if not __user__:\n            return body\n        user_id = __user__["id"]\n        messages = body.get("messages", [])\n        last_user = next(\n            (m for m in reversed(messages) if m.get("role") == "user"), None\n        )\n        last_assistant = next(\n            (m for m in reversed(messages) if m.get("role") == "assistant"), None\n        )\n        if not last_user or not last_assistant:\n            return body\n\n        import httpx\n        try:\n            httpx.post(\n                f"{MEM0_BASE_URL}/memories",\n                json={"messages": [last_user, last_assistant], "user_id": user_id},\n                timeout=5.0,\n            )\n        except Exception:\n            pass  # fire-and-forget; save failure must not break the response\n        return body</code></pre>\n<p><strong>Design notes:</strong></p>\n<ul><li><code>__user__["id"]</code> is Open WebUI\'s stable UUID — created from the OIDC <code>sub</code> claim on first login. It is the correct per-user isolation key for Mem0.</li><li>Mem0 <code>/search</code> uses <code>filters: {"user_id": "..."}</code> (top-level <code>user_id</code> is deprecated in current server).</li><li><code>httpx</code> is available in the Open WebUI container.</li><li>Both <code>open-webui</code> and <code>mem0</code> are on <code>ai_backend</code>, so <code>http://mem0:8000</code> resolves.</li></ul>\n' },
+      { id: '5.3', text: 'Install and enable the Filter in Open WebUI', body: '<p>1. Admin → Functions → New Function 2. Paste the contents of <code>compose/open-webui/mem0-filter.py</code> 3. Enable the function globally (or per-model as preferred) 4. Set Filter priority to <code>0</code> (runs before other system-prompt modifiers)</p>\n' },
+      { id: '5.4', text: 'Verify per-user isolation', body: '<p>1. Log in as User A — send a message containing a memorable fact (e.g. "I prefer Python over JavaScript") 2. Log in as User B — send a related question; confirm User A\'s fact does not appear 3. Log back in as User A — send a follow-up; confirm the fact is recalled</p>\n<p><strong>Acceptance criteria:</strong> memories persist across sessions per user; no cross-user memory leak.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-6',
+    label: 'Phase 6',
+    title: 'Phase 6 — Hardening and backups',
+    goal: 'Nightly backup running via systemd timer and verified restorable. All image tags pinned. Traefik socket proxy in place.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>Modify: <code>compose.yml</code> (add socket proxy service)</li><li>Create: <code>docs/decisions/ADR-006-socket-proxy.md</code></li></ul>\n',
+    tasks: [
+      { id: '6.1', text: 'First backup run', body: '<pre><code>./backup/backup.sh\nrestic -r &lt;repo&gt; snapshots</code></pre>\n<p>Confirm a Restic snapshot appears.</p>\n' },
+      { id: '6.2', text: 'Configure systemd timer for nightly backup', body: '<p>See <code>docs/INSTALLATION.md</code> backup scheduling section.</p>\n' },
+      { id: '6.3', text: 'Configure PBS weekly VM backup', body: '<p>Configure weekly whole-VM backup in Proxmox Backup Server. See <code>docs/decisions/ADR-005-backups.md</code>.</p>\n' },
+      { id: '6.4', text: 'Pin all remaining <code>:latest</code> tags', body: '<p>Replace any <code>:latest</code> in <code>.env</code> and <code>.env.example</code> with pinned release tags. Run <code>docker compose config</code> to confirm clean output.</p>\n' },
+      { id: '6.5', text: 'Add Traefik socket proxy', body: '<p>1. Add <code>tecnativa/docker-socket-proxy</code> to <code>compose.yml</code> on the <code>proxy</code> network 2. Set <code>DOCKER_HOST=tcp://socket-proxy:2375</code> in Traefik environment 3. Remove <code>/var/run/docker.sock</code> volume mount from Traefik 4. Write <code>docs/decisions/ADR-006-socket-proxy.md</code> recording the change</p>\n<p>Tracked as open item in <code>docs/DECISIONS.md</code> and <code>AGENTS.md</code>.</p>\n' },
+      { id: '6.6', text: 'Schedule and document quarterly restore test', body: '<p>Record the first restore test date. See <code>docs/BACKUP-RESTORE.md</code> for the restore runbook.</p>\n<p><strong>Acceptance criteria:</strong> nightly backup running; Restic snapshot restores cleanly; Traefik socket proxy active; all image tags pinned.</p>\n' }
+    ]
+  },
+  {
+    id: 'phase-7',
+    label: 'Phase 7',
+    title: 'Phase 7 — Operational baseline',
+    goal: 'Both users active. All acceptance tests from <code>docs/INSTALLATION.md</code> section 17 pass. System is ready for day-to-day use.',
+    details: '<p><strong>Files:</strong></p>\n<ul><li>No code changes — acceptance testing and user onboarding</li></ul>\n',
+    tasks: [
+      { id: '7.1', text: 'Run acceptance tests', body: '<p>Execute all tests in <code>docs/INSTALLATION.md</code> section 17. Document results.</p>\n' },
+      { id: '7.2', text: 'Onboard second user', body: '<p>Follow <code>docs/runbooks/USER-ONBOARDING.md</code>. Confirm:</p>\n<ul><li>OIDC login works</li><li>Role is <code>user</code> (not admin)</li><li>Private knowledge collections are separate</li><li>Memories do not cross between users (repeat Phase 5.4 with real accounts)</li></ul>\n' },
+      { id: '7.3', text: 'Operational documentation handover', body: '<p>Review <code>docs/OPERATIONS.md</code> with both users. Confirm:</p>\n<ul><li>Both users know how to pull new models</li><li>Both users know how to trigger a manual backup</li><li>Pre-upgrade runbook (<code>docs/runbooks/PRE-UPGRADE.md</code>) has been read</li></ul>\n<p><strong>Acceptance criteria:</strong> both users active; acceptance tests green; restore test documented.</p>\n<p>## Open items carried from planning session</p>\n<p>Do not close silently — raise with owner before acting.</p>\n<table><thead><tr><th>#</th><th>Item</th><th>Phase</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>Traefik Docker socket proxy</td><td>Phase 6</td><td>Deferred</td></tr><tr><td>2</td><td>Traefik dashboard (may re-enable behind Authentik forward-auth)</td><td>Post-production</td><td>Deferred</td></tr><tr><td>3</td><td>Qdrant (evaluate if vector search performance becomes a requirement)</td><td>Post-production</td><td>Deferred</td></tr><tr><td>4</td><td>Mem0 Authentik Proxy Outpost (only if Mem0 gains non-OWI clients)</td><td>Post-production</td><td>Deferred</td></tr><tr><td>5</td><td>Mem0 → Open WebUI Filter function</td><td>Phase 5</td><td>Skeleton in Phase 5.2 — not yet installed</td></tr><tr><td>6</td><td>Pin <code>:latest</code> tags for faster-whisper, Kokoro, Mem0</td><td>Phase 0</td><td>Outstanding</td></tr><tr><td>7</td><td><code>MEM0_DB_PASSWORD</code> missing from <code>generate-secrets.sh</code></td><td>Phase 0</td><td>Outstanding</td></tr><tr><td>8</td><td><code>.env.example</code> missing Kokoro, Mem0, ACME entries</td><td>Phase 0</td><td>Outstanding</td></tr><tr><td>9</td><td>Verify Gemma 4 tag names on <code>ollama.com/library</code></td><td>Phase 2</td><td>Outstanding</td></tr><tr><td>10</td><td>Move <code>compose/.env</code> → project root <code>.env</code></td><td>Phase 0</td><td>Outstanding</td></tr></tbody></table>\n' }
+    ]
+  }
+];
+
+const OPEN_ITEMS = [
+  { num: 1, text: 'Traefik Docker socket proxy', phase: 'Phase 6', status: 'deferred' },
+  { num: 2, text: 'Traefik dashboard (may re-enable behind Authentik forward-auth)', phase: 'Post-production', status: 'deferred' },
+  { num: 3, text: 'Qdrant (evaluate if vector search performance becomes a requirement)', phase: 'Post-production', status: 'deferred' },
+  { num: 4, text: 'Mem0 Authentik Proxy Outpost (only if Mem0 gains non-OWI clients)', phase: 'Post-production', status: 'deferred' },
+  { num: 5, text: 'Mem0 → Open WebUI Filter function', phase: 'Phase 5', status: 'critical' },
+  { num: 6, text: 'Pin `:latest` tags for faster-whisper, Kokoro, Mem0', phase: 'Phase 0', status: 'outstanding' },
+  { num: 7, text: '`MEM0_DB_PASSWORD` missing from `generate-secrets.sh`', phase: 'Phase 0', status: 'outstanding' },
+  { num: 8, text: '`.env.example` missing Kokoro, Mem0, ACME entries', phase: 'Phase 0', status: 'outstanding' },
+  { num: 9, text: 'Verify Gemma 4 tag names on `ollama.com/library`', phase: 'Phase 2', status: 'outstanding' },
+  { num: 10, text: 'Move `compose/.env` → project root `.env`', phase: 'Phase 0', status: 'outstanding' }
+];
+
+// ──────────────────────────────────────────────────────────────────
+// STATE  — persisted to localStorage
+// ──────────────────────────────────────────────────────────────────
+const STORE_KEY = 'lai-plan-v1';
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveState(state) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+function resetAll() {
+  if (!confirm('Reset all task progress?')) return;
+  localStorage.removeItem(STORE_KEY);
+  location.reload();
+}
+
+// ──────────────────────────────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────────────────────────────
+let state = loadState();
+
+function taskKey(phaseId, taskId) { return `${phaseId}:${taskId}`; }
+
+function totalTasks() {
+  return PHASES.reduce((n, p) => n + p.tasks.length, 0);
+}
+function completedTasks() {
+  return Object.values(state).filter(Boolean).length;
+}
+function phaseCompleted(phase) {
+  return phase.tasks.every(t => state[taskKey(phase.id, t.id)]);
+}
+function phaseActive(phase) {
+  return !phaseCompleted(phase) && phase.tasks.some(t => state[taskKey(phase.id, t.id)]);
+}
+function phaseCompletedCount(phase) {
+  return phase.tasks.filter(t => state[taskKey(phase.id, t.id)]).length;
+}
+
+function statusClass(phase) {
+  if (phaseCompleted(phase)) return 's-done';
+  if (phaseActive(phase))    return 's-active';
+  return '';
+}
+
+function renderBadge(badge) {
+  if (!badge) return '';
+  const map = {
+    outstanding: ['badge-outstanding', 'Outstanding'],
+    deferred:    ['badge-deferred',    'Deferred'],
+    critical:    ['badge-critical',    'Unwritten'],
+  };
+  const [cls, label] = map[badge] || ['badge-outstanding', badge];
+  return `<span class="task-badge ${cls}">${label}</span>`;
+}
+
+function buildContent() {
+  const content = document.getElementById('content');
+  let html = '';
+
+  // Pre-conditions card (static — not parsed from MD)
+  html += `
+    <div class="precond-card">
+      <h3>Pre-conditions</h3>
+      <ul>
+        <li>Proxmox host running with RTX 3060 available for PCIe passthrough</li>
+        <li>Cloudflare API token ready — DNS edit scope, zone <code>murs-local.net</code></li>
+        <li>Ubiquiti local DNS overrides pointing <code>ai.murs-local.net</code> and <code>auth.murs-local.net</code> to <code>192.168.1.63</code></li>
+      </ul>
+    </div>`;
+
+  PHASES.forEach(phase => {
+    const sc    = statusClass(phase);
+    const done  = phaseCompletedCount(phase);
+    const total = phase.tasks.length;
+    const pct   = Math.round((done / total) * 100);
+
+    html += `<div class="phase-section ${sc}" id="${phase.id}">`;
+
+    // Phase header row (number + title + mini progress bar)
+    html += `<div class="phase-header">
+      <div class="phase-number">${phase.id.replace('phase-', '')}</div>
+      <h2>${phase.title}</h2>
+      <div class="phase-prog-mini">
+        <div class="phase-prog-track"><div class="phase-prog-fill" style="width:${pct}%"></div></div>
+        <span>${done}/${total}</span>
+      </div>
+    </div>`;
+
+    // Goal accordion — header is goal text; panel is details (tables, file
+    // lists, etc.) parsed from the MD block between goal and first task.
+    const hasDetails = !!(phase.details && phase.details.trim());
+    html += `<div class="goal-accordion">
+      <div class="goal-header"${hasDetails ? ' data-expandable onclick="expandGoal(this)"' : ''}>
+        <span class="goal-text">${phase.goal}</span>
+        ${hasDetails ? '<span class="expand-icon">&#8250;</span>' : ''}
+      </div>
+      ${hasDetails ? `<div class="goal-panel">${phase.details}</div>` : ''}
+    </div>`;
+
+    // Task list — each task is an accordion: header = task row (checkbox +
+    // ID + text), panel = commands/body parsed from the MD between tasks.
+    html += `<div class="task-list">`;
+    phase.tasks.forEach(task => {
+      const key     = taskKey(phase.id, task.id);
+      const isDone  = !!state[key];
+      const hasBody = !!(task.body && task.body.trim());
+      html += `<div class="task-accordion${isDone ? ' done' : ''}" data-key="${key}">
+        <div class="task-header" onclick="expandTask(this)">
+          <div class="task-checkbox" onclick="event.stopPropagation(); toggle('${key}')"></div>
+          <span class="task-id">${task.id}</span>
+          <span class="task-text">${task.text}</span>
+          ${renderBadge(task.badge)}
+          ${hasBody ? '<span class="expand-icon">&#8250;</span>' : ''}
+        </div>
+        ${hasBody ? `<div class="task-panel">${task.body}</div>` : ''}
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  // Open items
+  html += `<div class="open-items" id="open-items">
+    <h2>Open items from planning session</h2>`;
+  OPEN_ITEMS.forEach(item => {
+    const badgeClass = item.status === 'deferred' ? 'badge-deferred' :
+                       item.status === 'critical'  ? 'badge-critical' : 'badge-outstanding';
+    const badgeLabel = item.status === 'deferred' ? 'Deferred' :
+                       item.status === 'critical'  ? 'Unwritten' : 'Outstanding';
+    html += `<div class="open-item">
+      <span class="open-item-num">${item.num}</span>
+      <span class="open-item-text">${item.text}</span>
+      <span class="open-item-phase">${item.phase}</span>
+      <span class="task-badge ${badgeClass}">${badgeLabel}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  content.innerHTML = html;
+}
+
+// Expand/collapse the task body panel. The checkbox click calls toggle()
+// with stopPropagation so it does not also trigger accordion expansion.
+function expandTask(headerEl) {
+  const acc = headerEl.closest('.task-accordion');
+  if (acc.querySelector('.task-panel')) acc.classList.toggle('open');
+}
+
+// Expand/collapse the phase details panel (resource tables, file lists, etc.)
+function expandGoal(headerEl) {
+  const acc = headerEl.closest('.goal-accordion');
+  if (acc.querySelector('.goal-panel')) acc.classList.toggle('open');
+}
+
+function buildStepper() {
+  const stepper = document.getElementById('stepper');
+  let html = '';
+  PHASES.forEach((phase, i) => {
+    const sc = statusClass(phase);
+    const n = phase.id.replace('phase-', '');
+    const short = phase.title.replace(/Phase [-−]?\d+ — /, '').replace(/ /g, ' ');
+    if (i > 0) {
+      const prevDone = phaseCompleted(PHASES[i-1]);
+      html += `<div class="step-connector ${prevDone ? 'done' : ''}"></div>`;
+    }
+    html += `<div class="step-unit ${sc}" onclick="document.getElementById('${phase.id}').scrollIntoView({behavior:'smooth'})">
+      <div class="step-row">
+        <div class="step-circle">${n}</div>
+      </div>
+      <div class="step-label">${short}</div>
+    </div>`;
+  });
+  stepper.innerHTML = html;
+}
+
+function buildSidebarPhases() {
+  const el = document.getElementById('sidebar-phases');
+  let html = '';
+  PHASES.forEach(phase => {
+    const sc = statusClass(phase);
+    const n = phase.id.replace('phase-', '');
+    const short = phase.title.replace(/Phase [-−]?\d+ — /, '');
+    html += `<a class="sidebar-link ${sc}" onclick="document.getElementById('${phase.id}').scrollIntoView({behavior:'smooth'})">
+      <span class="phase-dot">${n}</span>${short}
+    </a>`;
+  });
+  el.innerHTML = html;
+}
+
+function updateProgress() {
+  const total = totalTasks();
+  const done  = completedTasks();
+  const pct   = total ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('overall-fill').style.width = pct + '%';
+  document.getElementById('overall-pct').textContent  = pct + '%';
+  document.getElementById('sidebar-bar').style.width  = pct + '%';
+  document.getElementById('sidebar-pct').textContent  = pct + '%';
+
+  // Phase mini bars
+  PHASES.forEach(phase => {
+    const done  = phaseCompletedCount(phase);
+    const total = phase.tasks.length;
+    const phaseEl = document.getElementById(phase.id);
+    if (!phaseEl) return;
+    const fill = phaseEl.querySelector('.phase-prog-fill');
+    const label = phaseEl.querySelector('.phase-prog-mini span');
+    if (fill)  fill.style.width = Math.round((done/total)*100) + '%';
+    if (label) label.textContent = `${done}/${total}`;
+
+    const sc = statusClass(phase);
+    phaseEl.className = `phase-section ${sc}`;
+    const num = phaseEl.querySelector('.phase-number');
+    if (num) num.className = 'phase-number';
+  });
+}
+
+function toggle(key) {
+  state[key] = !state[key];
+  saveState(state);
+  // data-key attribute is set on each .task-accordion in buildContent
+  const el = document.querySelector(`.task-accordion[data-key="${key}"]`);
+  if (el) el.classList.toggle('done', !!state[key]);
+  buildStepper();
+  buildSidebarPhases();
+  updateProgress();
+}
+
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Boot ──
+buildContent();
+buildStepper();
+buildSidebarPhases();
+updateProgress();
+</script>
+</body>
+</html>
