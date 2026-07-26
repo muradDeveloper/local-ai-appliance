@@ -1,4 +1,6 @@
 .env
+env_var.txt
+env_var.cfg
 *.env.local
 compose/env_var.cfg
 secrets/

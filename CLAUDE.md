@@ -58,6 +58,14 @@ This repository deploys and documents an internal-only local AI appliance on a P
 - Backup secrets only into the encrypted backup repository.
 - A secret rotation requires a documented rollback plan.
 
+## Screenshots and screen captures
+
+- Always save screenshots to `.scratch/` in the project root — never to system temp dirs or `scripts/`.
+- Use a descriptive subdirectory name that reflects the purpose, e.g. `.scratch/oidc-manual/`, `.scratch/open-webui-manual/`, `.scratch/debug-YYYY-MM-DD/`.
+- Within each subdirectory, name files sequentially with a short slug: `01-authentik-login.png`, `02-provider-create.png`, etc.
+- Never reuse a subdirectory for a different topic — create a new one.
+- `.scratch/` is gitignored; never commit screenshots.
+
 ## Documentation rules
 
 - Australian English.

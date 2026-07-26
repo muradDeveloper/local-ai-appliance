@@ -15,12 +15,9 @@ docker exec ai-postgres pg_dump -U "$POSTGRES_SUPERUSER" -Fc "$OPENWEBUI_DB_NAME
 docker exec ai-postgres pg_dump -U "$POSTGRES_SUPERUSER" -Fc "$AUTHENTIK_DB_NAME" \
   > "$work/authentik.dump"
 
-# Export Open WebUI data volume (Chroma vector store, browser-uploaded files).
+# Export Open WebUI data directory (Chroma vector store, browser-uploaded files).
 # Crash-consistent — Open WebUI is not paused. Acceptable for a homelab nightly run.
-docker run --rm \
-  -v openwebui_data:/source:ro \
-  -v "$work":/dest \
-  busybox tar -czf /dest/openwebui-data.tar.gz -C /source .
+tar -czf "$work/openwebui-data.tar.gz" -C /mnt/ai-files/open-webui/data .
 
 # Record model inventory instead of backing up large model blobs.
 docker exec ollama ollama list > "$work/model-inventory.txt"

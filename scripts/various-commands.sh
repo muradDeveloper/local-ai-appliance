@@ -3,7 +3,7 @@
 
 ## Create necessary directories for various services
  mkdir -p /mnt/ai-files/{traefik/{dynamic,acme},redis/data,postgres/{data,init},ollama/data,authentik/{media,templates,certs},open-webui/{data,knowledge},portainer/data}
-
+mkdir -p /mnt/ai-files/speaches/models
 
 ## Restic is lightweight to install on Ubuntu:
 sudo apt install restic
@@ -16,3 +16,9 @@ apt install smbclient
 
 ## install cifs-utils to enable mounting a Windows share
 apt install cifs-utils
+
+## Test Speaches TTS
+curl -s http://localhost:8000/v1/audio/speech \
+  -H "Content-Type: application/json" \
+  -d '{"model":"speaches-ai/Kokoro-82M-v1.0-ONNX","voice":"af_heart","input":"Warming up."}' \
+  --output /dev/null

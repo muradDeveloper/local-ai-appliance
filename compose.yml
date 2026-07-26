@@ -38,7 +38,7 @@ services:
       - no-new-privileges:true
 
   redis:
-    image: redis:8-alpine
+    image: ${REDIS_IMAGE}
     container_name: ai-redis
     restart: unless-stopped
     volumes:
@@ -58,8 +58,14 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      OPENWEBUI_DB_USER: ${OPENWEBUI_DB_USER}
+      OPENWEBUI_DB_PASSWORD: ${OPENWEBUI_DB_PASSWORD}
+      OPENWEBUI_DB_NAME: ${OPENWEBUI_DB_NAME}
+      AUTHENTIK_DB_USER: ${AUTHENTIK_DB_USER}
+      AUTHENTIK_DB_PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+      AUTHENTIK_DB_NAME: ${AUTHENTIK_DB_NAME}
     volumes:
-      - /mnt/ai-files/postgres/data:/var/lib/postgresql/data
+      - /mnt/ai-files/postgres:/var/lib/postgresql
       - /mnt/ai-files/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - database
@@ -80,10 +86,11 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:11434/ || exit 1"]
+      test: ["CMD", "ollama", "list"]
       interval: 10s
       timeout: 5s
-      retries: 12
+      retries: 6
+      start_period: 15s
     gpus: all
     environment:
       OLLAMA_KEEP_ALIVE: 1h
@@ -93,36 +100,21 @@ services:
       OLLAMA_FLASH_ATTENTION: "1"
       OLLAMA_CONTEXT_LENGTH: "32768"
 
-  faster-whisper:
-    image: ${FASTER_WHISPER_IMAGE}
-    container_name: ai-faster-whisper
+  speaches:
+    image: ${SPEACHES_IMAGE}
+    container_name: ai-speaches
     restart: unless-stopped
     environment:
-      WHISPER__MODEL: medium
       WHISPER__INFERENCE_DEVICE: cpu
+      PRELOAD_MODELS: "Systran/faster-whisper-medium,speaches-ai/Kokoro-82M-v1.0-ONNX"
+    volumes:
+      - /mnt/ai-files/speaches/models:/home/ubuntu/.cache/huggingface/hub
     networks:
       - backend
     expose:
       - "8000"
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8000/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
-
-  kokoro:
-    image: ${KOKORO_IMAGE}
-    container_name: ai-kokoro
-    restart: unless-stopped
-    environment:
-      API_LOG_LEVEL: WARNING
-    networks:
-      - backend
-    expose:
-      - "8880"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8880/v1/audio/voices || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -150,13 +142,15 @@ services:
     networks:
       - proxy
       - database
+    expose:
+      - "9000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:9000/-/health/ready/ || exit 1"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:9000/-/health/ready/')\""]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -187,11 +181,14 @@ services:
       - /mnt/ai-files/authentik/templates:/templates
       - /mnt/ai-files/authentik/certs:/certs
     networks:
+      - proxy
       - database
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      authentik-server:
         condition: service_healthy
 
   open-webui:
@@ -216,15 +213,16 @@ services:
       OAUTH_ROLES_CLAIM: groups
       OAUTH_ADMIN_ROLES: ai-admins
       OAUTH_ALLOWED_ROLES: ai-admins,ai-users
+      DEFAULT_MODELS: "gemma4:e4b-it-qat"
       UVICORN_WORKERS: "1"
       AUDIO_STT_ENGINE: openai
-      AUDIO_STT_OPENAI_API_BASE_URL: http://faster-whisper:8000/v1
+      AUDIO_STT_OPENAI_API_BASE_URL: http://speaches:8000/v1
       AUDIO_STT_OPENAI_API_KEY: unused
       AUDIO_STT_MODEL: Systran/faster-whisper-medium
       AUDIO_TTS_ENGINE: openai
-      AUDIO_TTS_OPENAI_API_BASE_URL: http://kokoro:8880/v1
+      AUDIO_TTS_OPENAI_API_BASE_URL: http://speaches:8000/v1
       AUDIO_TTS_OPENAI_API_KEY: unused
-      AUDIO_TTS_MODEL: tts-1
+      AUDIO_TTS_MODEL: speaches-ai/Kokoro-82M-v1.0-ONNX
       AUDIO_TTS_VOICE: af_bella
     volumes:
       - /mnt/ai-files/open-webui/data:/app/backend/data
@@ -238,9 +236,7 @@ services:
         condition: service_healthy
       ollama:
         condition: service_healthy
-      faster-whisper:
-        condition: service_healthy
-      kokoro:
+      speaches:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/health || exit 1"]
@@ -257,36 +253,15 @@ services:
       - traefik.http.routers.openwebui.tls.certresolver=letsencrypt
       - traefik.http.services.openwebui.loadbalancer.server.port=8080
 
-  mem0:
-    image: ${MEM0_IMAGE}
-    container_name: ai-mem0
-    restart: unless-stopped
-    environment:
-      LLM_PROVIDER: ollama
-      LLM_MODEL: ${MEM0_LLM_MODEL}
-      EMBEDDER_PROVIDER: ollama
-      EMBEDDER_MODEL: nomic-embed-text
-      OLLAMA_BASE_URL: http://ollama:11434
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: "5432"
-      POSTGRES_DB: ${MEM0_DB_NAME}
-      POSTGRES_USER: ${MEM0_DB_USER}
-      POSTGRES_PASSWORD: ${MEM0_DB_PASSWORD}
-      POSTGRES_COLLECTION_NAME: memories
-      MEM0_TELEMETRY: "false"
-    networks:
-      - backend
-      - database
-    expose:
-      - "8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      ollama:
-        condition: service_healthy
+  # FUTURE: Add a self-hosted memory service here once a solution supports Ollama + PostgreSQL
+  # out of the box. Options to revisit:
+  #   - mem0 server (server/ dir) once it gains native Ollama support
+  #   - A community fork of mem0 with Ollama provider
+  #   - An alternative like Letta (formerly MemGPT)
+  # In the meantime, Open WebUI's built-in memory feature covers basic needs.
 
   portainer:
-    image: ${PORTAINER_IMAGE:-portainer/portainer-ce:2.21.5}
+    image: ${PORTAINER_IMAGE}
     container_name: ai-portainer
     restart: unless-stopped
     volumes:
@@ -310,7 +285,6 @@ networks:
     name: ai_proxy
   backend:
     name: ai_backend
-    internal: true
   database:
     name: ai_database
     internal: true
