@@ -81,12 +81,14 @@ services:
     restart: unless-stopped
     expose:
       - "11434"
+    ports:
+      - "127.0.0.1:11434:11434"
     volumes:
       - /mnt/ai-files/ollama/data:/root/.ollama
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "ollama", "list"]
+      test: ["CMD", "ollama", "ps"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -204,6 +206,7 @@ services:
       ENABLE_SIGNUP: "false"
       ENABLE_LOGIN_FORM: "false"
       ENABLE_OAUTH_SIGNUP: "true"
+      DEFAULT_USER_ROLE: user
       OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
       OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
       OPENID_PROVIDER_URL: ${OPENID_PROVIDER_URL}
@@ -214,6 +217,12 @@ services:
       OAUTH_ADMIN_ROLES: ai-admins
       OAUTH_ALLOWED_ROLES: ai-admins,ai-users
       DEFAULT_MODELS: "gemma4:e4b-it-qat"
+      BYPASS_MODEL_ACCESS_CONTROL: "true"
+      ENABLE_WEB_SEARCH: "true"
+      WEB_SEARCH_ENGINE: searxng
+      SEARXNG_QUERY_URL: "http://searxng:8080/search?q=<query>"
+      WEB_SEARCH_RESULT_COUNT: "5"
+      WEB_SEARCH_CONCURRENT_REQUESTS: "10"
       UVICORN_WORKERS: "1"
       AUDIO_STT_ENGINE: openai
       AUDIO_STT_OPENAI_API_BASE_URL: http://speaches:8000/v1
@@ -224,6 +233,7 @@ services:
       AUDIO_TTS_OPENAI_API_KEY: unused
       AUDIO_TTS_MODEL: speaches-ai/Kokoro-82M-v1.0-ONNX
       AUDIO_TTS_VOICE: af_bella
+      COMFYUI_BASE_URL: http://comfyui:8188
     volumes:
       - /mnt/ai-files/open-webui/data:/app/backend/data
       - /mnt/ai-files/open-webui/knowledge:/knowledge:ro
@@ -279,6 +289,79 @@ services:
       - traefik.http.routers.portainer.tls=true
       - traefik.http.routers.portainer.tls.certresolver=letsencrypt
       - traefik.http.services.portainer.loadbalancer.server.port=9000
+
+  searxng:
+    container_name: ai-searxng
+    image: ${SEARXNG_IMAGE}
+    restart: unless-stopped
+    networks:
+      - proxy
+      - backend
+    volumes:
+      - /mnt/ai-files/searxng/config:/etc/searxng:rw
+      - /mnt/ai-files/searxng/cache:/var/cache/searxng
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: "1"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ai_proxy
+      - traefik.http.routers.searxng.rule=Host(`${SEARXNG_FQDN}`)
+      - traefik.http.routers.searxng.entrypoints=websecure
+      - traefik.http.routers.searxng.tls=true
+      - traefik.http.routers.searxng.tls.certresolver=letsencrypt
+      - traefik.http.services.searxng.loadbalancer.server.port=8080
+
+  # ComfyUI — yanwk/comfyui-boot (community image, actively maintained)
+  # https://hub.docker.com/r/yanwk/comfyui-boot/tags
+  comfyui:
+    image: ${COMFYUI_IMAGE}
+    container_name: ai-comfyui
+    restart: unless-stopped
+    environment:
+      CLI_ARGS: ""
+      # CLI_ARGS: "--lowvram"    # if VRAM is tight while Ollama is running
+      # CLI_ARGS: "--gpu-only"   # force all processing onto GPU
+      # CLI_ARGS: "--fast"       # experimental speed optimisations
+    volumes:
+      - /mnt/ai-files/comfyui/models:/root/ComfyUI/models
+      - /mnt/ai-files/comfyui/output:/root/ComfyUI/output
+      - /mnt/ai-files/comfyui/input:/root/ComfyUI/input
+      - /mnt/ai-files/comfyui/custom_nodes:/root/ComfyUI/custom_nodes
+      - /mnt/ai-files/comfyui/user:/root/ComfyUI/user
+    networks:
+      - proxy
+      - backend
+    gpus: all
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8188/system_stats || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ai_proxy
+      - traefik.http.routers.comfyui.rule=Host(`${COMFYUI_FQDN}`)
+      - traefik.http.routers.comfyui.entrypoints=websecure
+      - traefik.http.routers.comfyui.tls=true
+      - traefik.http.routers.comfyui.tls.certresolver=letsencrypt
+      - traefik.http.services.comfyui.loadbalancer.server.port=8188
 
 networks:
   proxy:

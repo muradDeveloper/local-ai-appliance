@@ -39,7 +39,7 @@ This repository deploys and documents an internal-only local AI appliance on a P
 ## Compose conventions
 
 - Use Compose specification syntax without a top-level `version`.
-- Pin images to tested release tags before production.
+- Pin images to tested release tags before production. Reference the image via a variable in `.env` / `.env.example` (e.g. `image: ${SEARXNG_IMAGE}`). Never hardcode an image tag directly in `compose.yml`.
 - Set `restart: unless-stopped`.
 - Add health checks when the image provides a reliable endpoint.
 - Use `expose` for internal ports and `ports` only for Traefik.
@@ -48,6 +48,26 @@ This repository deploys and documents an internal-only local AI appliance on a P
 - Add `traefik.enable=true` only to intentionally routed services.
 - Avoid mounting the raw Docker socket into unrelated containers.
 - Prefer a restricted socket proxy in a hardened production revision.
+
+### Mandatory checklist for every new service block
+
+1. **Image** — variable from `.env`: `image: ${SERVICE_IMAGE}` with a pinned tag in `.env.example`.
+2. **Environment variables** — all values from `.env` via `${VAR}`. No literals for secrets or hostnames.
+3. **Persistent volumes** — AI application data mounts under `/mnt/ai-files/<service>/` on the host (e.g. `- /mnt/ai-files/searxng/data:/var/cache/searxng`). Config-only mounts (e.g. `./searxng:/etc/searxng`) are fine as repo-relative paths.
+4. **Health check** — required. Use `curl`, `wget`, or the image's own probe. Set `interval`, `timeout`, `retries`, and `start_period`.
+5. **Traefik labels** — required for any LAN-facing service. Minimum set:
+   ```yaml
+   labels:
+     - traefik.enable=true
+     - traefik.docker.network=ai_proxy
+     - traefik.http.routers.<name>.rule=Host(`${<NAME>_FQDN}`)
+     - traefik.http.routers.<name>.entrypoints=websecure
+     - traefik.http.routers.<name>.tls=true
+     - traefik.http.routers.<name>.tls.certresolver=letsencrypt
+     - traefik.http.services.<name>.loadbalancer.server.port=<port>
+   ```
+   Internal-only services (no LAN exposure) omit Traefik labels entirely and must not join the `proxy` network.
+6. **Networks** — join only the networks the service actually needs (`proxy` only if Traefik-routed, `backend` for app-tier, `database` only if it talks to Postgres/Redis).
 
 ## Secret handling
 
