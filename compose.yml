@@ -13,6 +13,8 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
+      - --entrypoints.web.forwardedHeaders.insecure=true
+      - --entrypoints.websecure.forwardedHeaders.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=ai_proxy
@@ -38,7 +40,7 @@ services:
       - no-new-privileges:true
 
   redis:
-    image: redis:8-alpine
+    image: ${REDIS_IMAGE}
     container_name: ai-redis
     restart: unless-stopped
     volumes:
@@ -58,8 +60,14 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      OPENWEBUI_DB_USER: ${OPENWEBUI_DB_USER}
+      OPENWEBUI_DB_PASSWORD: ${OPENWEBUI_DB_PASSWORD}
+      OPENWEBUI_DB_NAME: ${OPENWEBUI_DB_NAME}
+      AUTHENTIK_DB_USER: ${AUTHENTIK_DB_USER}
+      AUTHENTIK_DB_PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+      AUTHENTIK_DB_NAME: ${AUTHENTIK_DB_NAME}
     volumes:
-      - /mnt/ai-files/postgres/data:/var/lib/postgresql/data
+      - /mnt/ai-files/postgres:/var/lib/postgresql
       - /mnt/ai-files/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - database
@@ -75,17 +83,21 @@ services:
     restart: unless-stopped
     expose:
       - "11434"
+    ports:
+      - "127.0.0.1:11434:11434"
     volumes:
       - /mnt/ai-files/ollama/data:/root/.ollama
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:11434/ || exit 1"]
+      test: ["CMD", "ollama", "ps"]
       interval: 10s
       timeout: 5s
-      retries: 12
+      retries: 6
+      start_period: 15s
     gpus: all
     environment:
+      TZ: ${TZ}
       OLLAMA_KEEP_ALIVE: 1h
       OLLAMA_MAX_LOADED_MODELS: "1"
       OLLAMA_NUM_PARALLEL: "1"
@@ -93,36 +105,22 @@ services:
       OLLAMA_FLASH_ATTENTION: "1"
       OLLAMA_CONTEXT_LENGTH: "32768"
 
-  faster-whisper:
-    image: ${FASTER_WHISPER_IMAGE}
-    container_name: ai-faster-whisper
+  speaches:
+    image: ${SPEACHES_IMAGE}
+    container_name: ai-speaches
     restart: unless-stopped
     environment:
-      WHISPER__MODEL: medium
+      TZ: ${TZ}
       WHISPER__INFERENCE_DEVICE: cpu
+      PRELOAD_MODELS: "Systran/faster-whisper-medium,speaches-ai/Kokoro-82M-v1.0-ONNX"
+    volumes:
+      - /mnt/ai-files/speaches/models:/home/ubuntu/.cache/huggingface/hub
     networks:
       - backend
     expose:
       - "8000"
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8000/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
-
-  kokoro:
-    image: ${KOKORO_IMAGE}
-    container_name: ai-kokoro
-    restart: unless-stopped
-    environment:
-      API_LOG_LEVEL: WARNING
-    networks:
-      - backend
-    expose:
-      - "8880"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8880/v1/audio/voices || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -134,6 +132,7 @@ services:
     restart: unless-stopped
     command: server
     environment:
+      TZ: ${TZ}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
       AUTHENTIK_POSTGRESQL__HOST: postgres
       AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_DB_NAME}
@@ -150,13 +149,15 @@ services:
     networks:
       - proxy
       - database
+    expose:
+      - "9000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:9000/-/health/ready/ || exit 1"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:9000/-/health/ready/')\""]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -176,6 +177,7 @@ services:
     restart: unless-stopped
     command: worker
     environment:
+      TZ: ${TZ}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
       AUTHENTIK_POSTGRESQL__HOST: postgres
       AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_DB_NAME}
@@ -187,11 +189,14 @@ services:
       - /mnt/ai-files/authentik/templates:/templates
       - /mnt/ai-files/authentik/certs:/certs
     networks:
+      - proxy
       - database
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      authentik-server:
         condition: service_healthy
 
   open-webui:
@@ -207,6 +212,7 @@ services:
       ENABLE_SIGNUP: "false"
       ENABLE_LOGIN_FORM: "false"
       ENABLE_OAUTH_SIGNUP: "true"
+      DEFAULT_USER_ROLE: user
       OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
       OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
       OPENID_PROVIDER_URL: ${OPENID_PROVIDER_URL}
@@ -216,16 +222,24 @@ services:
       OAUTH_ROLES_CLAIM: groups
       OAUTH_ADMIN_ROLES: ai-admins
       OAUTH_ALLOWED_ROLES: ai-admins,ai-users
+      DEFAULT_MODELS: "gemma4:e4b-it-qat"
+      BYPASS_MODEL_ACCESS_CONTROL: "true"
+      ENABLE_WEB_SEARCH: "true"
+      WEB_SEARCH_ENGINE: searxng
+      SEARXNG_QUERY_URL: "http://searxng:8080/search?q=<query>&language=en-AU&region=au-en"
+      WEB_SEARCH_RESULT_COUNT: "5"
+      WEB_SEARCH_CONCURRENT_REQUESTS: "10"
       UVICORN_WORKERS: "1"
       AUDIO_STT_ENGINE: openai
-      AUDIO_STT_OPENAI_API_BASE_URL: http://faster-whisper:8000/v1
+      AUDIO_STT_OPENAI_API_BASE_URL: http://speaches:8000/v1
       AUDIO_STT_OPENAI_API_KEY: unused
       AUDIO_STT_MODEL: Systran/faster-whisper-medium
       AUDIO_TTS_ENGINE: openai
-      AUDIO_TTS_OPENAI_API_BASE_URL: http://kokoro:8880/v1
+      AUDIO_TTS_OPENAI_API_BASE_URL: http://speaches:8000/v1
       AUDIO_TTS_OPENAI_API_KEY: unused
-      AUDIO_TTS_MODEL: tts-1
+      AUDIO_TTS_MODEL: speaches-ai/Kokoro-82M-v1.0-ONNX
       AUDIO_TTS_VOICE: af_bella
+      COMFYUI_BASE_URL: http://comfyui:8188
     volumes:
       - /mnt/ai-files/open-webui/data:/app/backend/data
       - /mnt/ai-files/open-webui/knowledge:/knowledge:ro
@@ -238,9 +252,9 @@ services:
         condition: service_healthy
       ollama:
         condition: service_healthy
-      faster-whisper:
+      speaches:
         condition: service_healthy
-      kokoro:
+      weather-server:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/health || exit 1"]
@@ -257,36 +271,15 @@ services:
       - traefik.http.routers.openwebui.tls.certresolver=letsencrypt
       - traefik.http.services.openwebui.loadbalancer.server.port=8080
 
-  mem0:
-    image: ${MEM0_IMAGE}
-    container_name: ai-mem0
-    restart: unless-stopped
-    environment:
-      LLM_PROVIDER: ollama
-      LLM_MODEL: ${MEM0_LLM_MODEL}
-      EMBEDDER_PROVIDER: ollama
-      EMBEDDER_MODEL: nomic-embed-text
-      OLLAMA_BASE_URL: http://ollama:11434
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: "5432"
-      POSTGRES_DB: ${MEM0_DB_NAME}
-      POSTGRES_USER: ${MEM0_DB_USER}
-      POSTGRES_PASSWORD: ${MEM0_DB_PASSWORD}
-      POSTGRES_COLLECTION_NAME: memories
-      MEM0_TELEMETRY: "false"
-    networks:
-      - backend
-      - database
-    expose:
-      - "8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      ollama:
-        condition: service_healthy
+  # FUTURE: Add a self-hosted memory service here once a solution supports Ollama + PostgreSQL
+  # out of the box. Options to revisit:
+  #   - mem0 server (server/ dir) once it gains native Ollama support
+  #   - A community fork of mem0 with Ollama provider
+  #   - An alternative like Letta (formerly MemGPT)
+  # In the meantime, Open WebUI's built-in memory feature covers basic needs.
 
   portainer:
-    image: ${PORTAINER_IMAGE:-portainer/portainer-ce:2.21.5}
+    image: ${PORTAINER_IMAGE}
     container_name: ai-portainer
     restart: unless-stopped
     volumes:
@@ -305,12 +298,117 @@ services:
       - traefik.http.routers.portainer.tls.certresolver=letsencrypt
       - traefik.http.services.portainer.loadbalancer.server.port=9000
 
+  searxng:
+    container_name: ai-searxng
+    image: ${SEARXNG_IMAGE}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    networks:
+      - proxy
+      - backend
+    volumes:
+      - /mnt/ai-files/searxng/config:/etc/searxng:rw
+      - /mnt/ai-files/searxng/cache:/var/cache/searxng
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: "1"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ai_proxy
+      - traefik.http.routers.searxng.rule=Host(`${SEARXNG_FQDN}`)
+      - traefik.http.routers.searxng.entrypoints=websecure
+      - traefik.http.routers.searxng.tls=true
+      - traefik.http.routers.searxng.tls.certresolver=letsencrypt
+      - traefik.http.services.searxng.loadbalancer.server.port=8080
+      - traefik.http.routers.searxng.middlewares=searxng-realip
+      - traefik.http.middlewares.searxng-realip.forwardedheaders.trustedips=0.0.0.0/0
+
+  weather-server:
+    build:
+      context: ./open-webui/weather
+    container_name: ai-weather-server
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${GEOIP_DB_PATH}:/geoip/GeoLite2-City.mmdb:ro
+    expose:
+      - "8000"
+    networks:
+      - proxy
+      - backend
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/openapi.json')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ai_proxy
+      - traefik.http.routers.weather.rule=Host(`${WEATHER_FQDN}`)
+      - traefik.http.routers.weather.entrypoints=websecure
+      - traefik.http.routers.weather.tls=true
+      - traefik.http.routers.weather.tls.certresolver=letsencrypt
+      - traefik.http.services.weather.loadbalancer.server.port=8000
+
+  # ComfyUI — yanwk/comfyui-boot (community image, actively maintained)
+  # https://hub.docker.com/r/yanwk/comfyui-boot/tags
+  comfyui:
+    image: ${COMFYUI_IMAGE}
+    container_name: ai-comfyui
+    restart: unless-stopped
+    environment:
+      CLI_ARGS: ""
+      # CLI_ARGS: "--lowvram"    # if VRAM is tight while Ollama is running
+      # CLI_ARGS: "--gpu-only"   # force all processing onto GPU
+      # CLI_ARGS: "--fast"       # experimental speed optimisations
+    volumes:
+      - /mnt/ai-files/comfyui/models:/root/ComfyUI/models
+      - /mnt/ai-files/comfyui/output:/root/ComfyUI/output
+      - /mnt/ai-files/comfyui/input:/root/ComfyUI/input
+      - /mnt/ai-files/comfyui/custom_nodes:/root/ComfyUI/custom_nodes
+      - /mnt/ai-files/comfyui/user:/root/ComfyUI/user
+    networks:
+      - proxy
+      - backend
+    gpus: all
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8188/system_stats || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ai_proxy
+      - traefik.http.routers.comfyui.rule=Host(`${COMFYUI_FQDN}`)
+      - traefik.http.routers.comfyui.entrypoints=websecure
+      - traefik.http.routers.comfyui.tls=true
+      - traefik.http.routers.comfyui.tls.certresolver=letsencrypt
+      - traefik.http.services.comfyui.loadbalancer.server.port=8188
+
 networks:
   proxy:
     name: ai_proxy
   backend:
     name: ai_backend
-    internal: true
   database:
     name: ai_database
     internal: true

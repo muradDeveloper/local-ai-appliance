@@ -4,6 +4,7 @@ Repository instructions for automated coding agents.
 
 ## Scope
 
+
 These rules apply to the entire repository.
 
 ## Mission

@@ -1,0 +1,58 @@
+# SearXNG configuration for local AI appliance
+# JSON format must be enabled for Open WebUI web search integration.
+
+use_default_settings: true
+
+general:
+  instance_title: "Local AI Search"
+  debug: false
+  private_instance: true
+
+search:
+  safe_search: 0
+  default_lang: "en"
+  formats:
+    - html
+    - json
+
+server:
+  secret_key: "ca0da751ba34045f972c4c742003c420830b99fbc324aa629beaf653d57f9054"
+  limiter: false
+  image_proxy: false
+  bind_address: "0.0.0.0"
+  port: 8080
+  # Trust X-Forwarded-For from Traefik (Docker bridge subnet range)
+  real_ip:
+    x_for: 1
+    trusted_proxies:
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+      - 10.0.0.0/8
+
+ui:
+  default_theme: simple
+  results_on_new_tab: false
+
+engines:
+  - name: brave
+    disabled: true
+  - name: brave.images
+    disabled: true
+  - name: brave.news
+    disabled: true
+  - name: brave.videos
+    disabled: true
+  - name: wikidata
+    disabled: true
+  - name: wttrin
+    disabled: false
+    categories: weather
+    url: https://wttr.in/
+    weight: 2
+
+enabled_plugins:
+  - Basic Calculator
+  - Hash plugin
+  - Tor check plugin
+  - Unit converter plugin
+  - Open Access DOI rewrite
