@@ -13,6 +13,8 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
+      - --entrypoints.web.forwardedHeaders.insecure=true
+      - --entrypoints.websecure.forwardedHeaders.insecure=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=ai_proxy
@@ -95,6 +97,7 @@ services:
       start_period: 15s
     gpus: all
     environment:
+      TZ: ${TZ}
       OLLAMA_KEEP_ALIVE: 1h
       OLLAMA_MAX_LOADED_MODELS: "1"
       OLLAMA_NUM_PARALLEL: "1"
@@ -107,6 +110,7 @@ services:
     container_name: ai-speaches
     restart: unless-stopped
     environment:
+      TZ: ${TZ}
       WHISPER__INFERENCE_DEVICE: cpu
       PRELOAD_MODELS: "Systran/faster-whisper-medium,speaches-ai/Kokoro-82M-v1.0-ONNX"
     volumes:
@@ -128,6 +132,7 @@ services:
     restart: unless-stopped
     command: server
     environment:
+      TZ: ${TZ}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
       AUTHENTIK_POSTGRESQL__HOST: postgres
       AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_DB_NAME}
@@ -172,6 +177,7 @@ services:
     restart: unless-stopped
     command: worker
     environment:
+      TZ: ${TZ}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
       AUTHENTIK_POSTGRESQL__HOST: postgres
       AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_DB_NAME}
@@ -220,7 +226,7 @@ services:
       BYPASS_MODEL_ACCESS_CONTROL: "true"
       ENABLE_WEB_SEARCH: "true"
       WEB_SEARCH_ENGINE: searxng
-      SEARXNG_QUERY_URL: "http://searxng:8080/search?q=<query>"
+      SEARXNG_QUERY_URL: "http://searxng:8080/search?q=<query>&language=en-AU&region=au-en"
       WEB_SEARCH_RESULT_COUNT: "5"
       WEB_SEARCH_CONCURRENT_REQUESTS: "10"
       UVICORN_WORKERS: "1"
@@ -247,6 +253,8 @@ services:
       ollama:
         condition: service_healthy
       speaches:
+        condition: service_healthy
+      weather-server:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/health || exit 1"]
@@ -294,6 +302,8 @@ services:
     container_name: ai-searxng
     image: ${SEARXNG_IMAGE}
     restart: unless-stopped
+    environment:
+      TZ: ${TZ}
     networks:
       - proxy
       - backend
@@ -326,6 +336,37 @@ services:
       - traefik.http.routers.searxng.tls=true
       - traefik.http.routers.searxng.tls.certresolver=letsencrypt
       - traefik.http.services.searxng.loadbalancer.server.port=8080
+      - traefik.http.routers.searxng.middlewares=searxng-realip
+      - traefik.http.middlewares.searxng-realip.forwardedheaders.trustedips=0.0.0.0/0
+
+  weather-server:
+    build:
+      context: ./open-webui/weather
+    container_name: ai-weather-server
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${GEOIP_DB_PATH}:/geoip/GeoLite2-City.mmdb:ro
+    expose:
+      - "8000"
+    networks:
+      - proxy
+      - backend
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/openapi.json')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ai_proxy
+      - traefik.http.routers.weather.rule=Host(`${WEATHER_FQDN}`)
+      - traefik.http.routers.weather.entrypoints=websecure
+      - traefik.http.routers.weather.tls=true
+      - traefik.http.routers.weather.tls.certresolver=letsencrypt
+      - traefik.http.services.weather.loadbalancer.server.port=8000
 
   # ComfyUI — yanwk/comfyui-boot (community image, actively maintained)
   # https://hub.docker.com/r/yanwk/comfyui-boot/tags
