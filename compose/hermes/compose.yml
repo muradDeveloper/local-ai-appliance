@@ -1,0 +1,34 @@
+name: hermes
+
+services:
+
+  hermes:
+    image: ${HERMES_IMAGE}
+    container_name: ai-hermes
+    restart: unless-stopped
+    ports:
+      - "${BIND_IP}:8642:8642"
+      - "${BIND_IP}:9119:9119"
+    env_file:
+      - .env
+    environment:
+      HERMES_DASHBOARD: "1"
+    volumes:
+      - /mnt/ai-files/hermes/data:/opt/data
+    networks:
+      - proxy
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8642/v1/models || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+networks:
+  proxy:
+    external: true
+    name: ai_proxy
+  backend:
+    external: true
+    name: ai_backend

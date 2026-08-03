@@ -1,0 +1,59 @@
+name: odysseus
+
+services:
+
+  odysseus:
+    build:
+      context: https://github.com/pewdiepie-archdaemon/odysseus.git#dev
+      # Alternatively, use a local clone:
+      # context: /path/to/odysseus
+    container_name: ai-odysseus
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${BIND_IP}:7000:7000"
+    env_file:
+      - .env
+    volumes:
+      - /mnt/ai-files/odysseus/data:/data
+      - /mnt/ai-files/odysseus/logs:/logs
+    networks:
+      - proxy
+      - backend
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:7000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  chromadb:
+    image: ${CHROMADB_IMAGE}
+    container_name: ai-odysseus-chromadb
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /mnt/ai-files/odysseus/chromadb:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8000/api/v2/heartbeat || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+networks:
+  proxy:
+    external: true
+    name: ai_proxy
+  backend:
+    external: true
+    name: ai_backend

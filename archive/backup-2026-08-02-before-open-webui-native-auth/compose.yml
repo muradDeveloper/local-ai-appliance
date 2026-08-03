@@ -1,6 +1,19 @@
 name: local-ai-appliance
 
 services:
+  redis:
+    image: ${REDIS_IMAGE}
+    container_name: ai-redis
+    restart: unless-stopped
+    volumes:
+      - /mnt/ai-files/redis/data:/data
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
 
   postgres:
     image: ${POSTGRES_IMAGE}
@@ -12,7 +25,9 @@ services:
       OPENWEBUI_DB_USER: ${OPENWEBUI_DB_USER}
       OPENWEBUI_DB_PASSWORD: ${OPENWEBUI_DB_PASSWORD}
       OPENWEBUI_DB_NAME: ${OPENWEBUI_DB_NAME}
-
+      AUTHENTIK_DB_USER: ${AUTHENTIK_DB_USER}
+      AUTHENTIK_DB_PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+      AUTHENTIK_DB_NAME: ${AUTHENTIK_DB_NAME}
     volumes:
       - /mnt/ai-files/postgres:/var/lib/postgresql
       - /mnt/ai-files/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -73,6 +88,80 @@ services:
       retries: 12
       start_period: 60s
 
+  authentik-server:
+    image: ${AUTHENTIK_IMAGE}
+    container_name: ai-authentik-server
+    restart: unless-stopped
+    command: server
+    ports:
+      - "192.168.1.63:9000:9000"
+    environment:
+      TZ: ${TZ}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_DB_NAME}
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_DB_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_LISTEN__HTTP: 0.0.0.0:9000
+      AUTHENTIK_LISTEN__HTTPS: 0.0.0.0:9443
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
+    volumes:
+      - /mnt/ai-files/authentik/media:/media
+      - /mnt/ai-files/authentik/templates:/templates
+    networks:
+      - proxy
+      - database
+    expose:
+      - "9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:9000/-/health/ready/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.docker.network=ai_proxy
+    #   - traefik.http.routers.authentik.rule=Host(`${AUTH_FQDN}`)
+    #   - traefik.http.routers.authentik.entrypoints=websecure
+    #   - traefik.http.routers.authentik.tls=true
+    #   - traefik.http.routers.authentik.tls.certresolver=letsencrypt
+    #   - traefik.http.services.authentik.loadbalancer.server.port=9000
+
+  authentik-worker:
+    image: ${AUTHENTIK_IMAGE}
+    container_name: ai-authentik-worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      TZ: ${TZ}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_DB_NAME}
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_DB_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+      AUTHENTIK_REDIS__HOST: redis
+    volumes:
+      - /mnt/ai-files/authentik/media:/media
+      - /mnt/ai-files/authentik/templates:/templates
+      - /mnt/ai-files/authentik/certs:/certs
+    networks:
+      - proxy
+      - database
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      authentik-server:
+        condition: service_healthy
 
   open-webui:
     image: ${OPEN_WEBUI_IMAGE}
@@ -86,9 +175,19 @@ services:
       WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
       DATABASE_URL: postgresql://${OPENWEBUI_DB_USER}:${OPENWEBUI_DB_PASSWORD}@postgres:5432/${OPENWEBUI_DB_NAME}
       OLLAMA_BASE_URL: http://ollama:11434
-      ENABLE_SIGNUP: "true"
-      ENABLE_LOGIN_FORM: "true"
+      ENABLE_SIGNUP: "false"
+      ENABLE_LOGIN_FORM: "false"
+      ENABLE_OAUTH_SIGNUP: "true"
       DEFAULT_USER_ROLE: user
+      OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
+      OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
+      OPENID_PROVIDER_URL: ${OPENID_PROVIDER_URL}
+      OPENID_REDIRECT_URI: ${OPENID_REDIRECT_URI}
+      OAUTH_PROVIDER_NAME: ${OAUTH_PROVIDER_NAME}
+      OAUTH_SCOPES: openid email profile
+      OAUTH_ROLES_CLAIM: groups
+      OAUTH_ADMIN_ROLES: ai-admins
+      OAUTH_ALLOWED_ROLES: ai-admins,ai-users
       DEFAULT_MODELS: "gemma4:e4b-it-qat"
       BYPASS_MODEL_ACCESS_CONTROL: "true"
       ENABLE_WEB_SEARCH: "true"
@@ -106,12 +205,7 @@ services:
       AUDIO_TTS_OPENAI_API_KEY: unused
       AUDIO_TTS_MODEL: speaches-ai/Kokoro-82M-v1.0-ONNX
       AUDIO_TTS_VOICE: af_bella
-      ENABLE_IMAGE_GENERATION: "true"
-      IMAGE_GENERATION_ENGINE: "comfyui"
-      IMAGE_SIZE: "1024x1024"
-      IMAGE_STEPS: "28"
       COMFYUI_BASE_URL: http://comfyui:8188
-      COMFYUI_WORKFLOW: '{"4":{"inputs":{"ckpt_name":"animagine-xl-4.0-opt.safetensors"},"class_type":"CheckpointLoaderSimple","_meta":{"title":"Load Checkpoint"}},"5":{"inputs":{"width":1024,"height":1024,"batch_size":1},"class_type":"EmptyLatentImage","_meta":{"title":"Empty Latent Image"}},"6":{"inputs":{"text":"masterpiece, high score, great score, absurdres, 1girl, solo, long black hair, blue eyes, modern casual clothing, standing in a bright modern kitchen, clean anime illustration, detailed eyes, clean lineart, soft shading, colorful lighting","clip":["4",1]},"class_type":"CLIPTextEncode","_meta":{"title":"CLIP Text Encode (Positive Prompt)"}},"7":{"inputs":{"text":"lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, worst quality, low quality, normal quality, blurry, signature, watermark, username","clip":["4",1]},"class_type":"CLIPTextEncode","_meta":{"title":"CLIP Text Encode (Negative Prompt)"}},"8":{"inputs":{"seed":173805153958730,"steps":28,"cfg":5,"sampler_name":"euler_ancestral","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"9":{"inputs":{"samples":["8",0],"vae":["4",2]},"class_type":"VAEDecode","_meta":{"title":"VAE Decode"}},"10":{"inputs":{"filename_prefix":"animagine/anime","images":["9",0]},"class_type":"SaveImage","_meta":{"title":"Save Image"}}}'
     volumes:
       - /mnt/ai-files/open-webui/data:/app/backend/data
       - /mnt/ai-files/open-webui/knowledge:/knowledge:ro
@@ -127,6 +221,8 @@ services:
       speaches:
         condition: service_healthy
       weather-server:
+        condition: service_healthy
+      authentik-server:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/health || exit 1"]
@@ -155,7 +251,6 @@ services:
     container_name: ai-portainer
     restart: unless-stopped
     ports:
-      - "192.168.1.63:9000:9000"
       - "192.168.1.63:9443:9443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

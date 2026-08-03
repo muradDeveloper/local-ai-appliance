@@ -1,0 +1,5 @@
+model:
+  provider: custom
+  model: gemma4:e4b-it-qat
+  base_url: http://ollama:11434/v1
+  api_key: "none"
