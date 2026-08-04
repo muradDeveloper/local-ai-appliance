@@ -179,7 +179,6 @@ class Tools:
     async def generate_anime_image(
         self,
         positive_prompt: str,
-        negative_prompt: str,
         checkpoint: Optional[str] = None,
         width: Optional[int] = None,
         height: Optional[int] = None,
@@ -189,20 +188,18 @@ class Tools:
         __event_emitter__: Optional[Callable] = None,
     ) -> HTMLResponse:
         """
-        Generate one anime image with separate positive and negative prompts.
+        Generate one anime image from a positive prompt.
 
-        Use this tool whenever the user asks to create an anime image.
+        Use this tool whenever the user asks to create an anime image or illustration.
 
         The positive prompt must preserve the user's requested subject count, gender,
         age, skin tone or ethnicity, clothing, cultural details, pose, framing,
-        setting, lighting, mood and style.
+        setting, lighting, mood and style. Begin with quality tags: masterpiece,
+        high score, great score, absurdres.
 
-        The negative prompt must exclude likely contradictions to the user's request,
-        plus malformed anatomy, malformed hands, extra or missing fingers, text,
-        logos, signatures, watermarks, blur and low quality. Never negate a requested trait.
+        The negative prompt is generated automatically -- do not supply it.
 
         :param positive_prompt: Detailed comma-separated description of what should appear.
-        :param negative_prompt: Targeted comma-separated description of what must not appear.
         :param checkpoint: Exact ComfyUI checkpoint filename; omit for the configured default.
         :param width: Width from 512 to 2048, divisible by 64.
         :param height: Height from 512 to 2048, divisible by 64.
@@ -211,11 +208,8 @@ class Tools:
         :param seed: Optional deterministic seed; omit for random.
         """
         positive_prompt = positive_prompt.strip()
-        negative_prompt = negative_prompt.strip()
         if not positive_prompt:
             raise ValueError("positive_prompt cannot be empty.")
-        if not negative_prompt:
-            raise ValueError("negative_prompt cannot be empty.")
 
         checkpoint = checkpoint or self.valves.default_checkpoint
         width = self._validate_dimension(width or self.valves.default_width, "width")
@@ -230,18 +224,7 @@ class Tools:
             raise ValueError("cfg must be between 1.0 and 20.0.")
 
         base_url = self.valves.comfyui_url.rstrip("/")
-        workflow = self._workflow(
-            positive_prompt,
-            negative_prompt,
-            checkpoint,
-            width,
-            height,
-            steps,
-            cfg,
-            seed,
-            self.valves.sampler_name,
-            self.valves.scheduler,
-        )
+        timeout = httpx.Timeout(self.valves.request_timeout_seconds)
 
         async def emit_status(description: str, done: bool = False):
             if __event_emitter__:
@@ -250,10 +233,30 @@ class Tools:
                     "data": {"description": description, "done": done},
                 })
 
-        await emit_status("Submitting workflow to ComfyUI…")
-        timeout = httpx.Timeout(self.valves.request_timeout_seconds)
-
         async with httpx.AsyncClient(timeout=timeout) as client:
+            await emit_status("Generating negative prompt...")
+            try:
+                negative_prompt = await self._generate_negative_prompt(client, positive_prompt)
+                if not negative_prompt:
+                    raise ValueError("Empty response from Ollama.")
+            except Exception as exc:
+                await emit_status(f"Negative prompt generation failed ({exc}), using fallback.")
+                negative_prompt = self.valves.negative_prompt_fallback
+
+            workflow = self._workflow(
+                positive_prompt,
+                negative_prompt,
+                checkpoint,
+                width,
+                height,
+                steps,
+                cfg,
+                seed,
+                self.valves.sampler_name,
+                self.valves.scheduler,
+            )
+
+            await emit_status("Submitting workflow to ComfyUI...")
             try:
                 r = await client.get(f"{base_url}/system_stats")
                 r.raise_for_status()
@@ -274,7 +277,7 @@ class Tools:
             if not prompt_id:
                 raise RuntimeError(f"ComfyUI returned no prompt_id: {r.text}")
 
-            await emit_status(f"Generating image in ComfyUI (seed {seed})…")
+            await emit_status(f"Generating image (seed {seed})...")
             deadline = time.monotonic() + self.valves.generation_timeout_seconds
             history_item = None
 
@@ -321,7 +324,7 @@ class Tools:
             <div style="margin-top:8px;line-height:1.45">
               <strong>Checkpoint:</strong> {html.escape(checkpoint)}<br>
               <strong>Seed:</strong> {seed}<br>
-              <strong>Size:</strong> {width} × {height}<br>
+              <strong>Size:</strong> {width} x {height}<br>
               <strong>Steps / CFG:</strong> {steps} / {cfg}<br><br>
               <strong>Positive prompt</strong>
               <div style="white-space:pre-wrap">{html.escape(positive_prompt)}</div><br>
