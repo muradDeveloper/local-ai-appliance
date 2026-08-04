@@ -27,6 +27,33 @@ class Tools:
             default="http://comfyui:8188",
             description="ComfyUI URL reachable from Open WebUI, e.g. http://comfyui:8188",
         )
+        ollama_url: str = Field(
+            default="http://ollama:11434",
+            description="Ollama endpoint reachable from Open WebUI, e.g. http://ollama:11434",
+        )
+        ollama_model: str = Field(
+            default="",
+            description="Override model name for negative prompt generation. Empty = auto-detect from /api/ps.",
+        )
+        negative_prompt_system: str = Field(
+            default=(
+                "You are a Stable Diffusion prompt engineer. Given a positive image prompt, "
+                "output ONLY a comma-separated negative prompt with no explanation or preamble. "
+                "Exclude: anatomy defects (bad anatomy, bad hands, extra fingers, missing fingers, "
+                "fused limbs), quality defects (lowres, blurry, jpeg artifacts, noise, worst quality), "
+                "and unwanted content (text, watermark, signature, logo, username). "
+                "Also exclude traits that contradict the style, mood, or subject in the positive prompt. "
+                "Never negate a trait that was explicitly requested."
+            ),
+            description="System prompt sent to Ollama when generating the negative prompt.",
+        )
+        negative_prompt_fallback: str = Field(
+            default=(
+                "lowres, bad anatomy, bad hands, extra fingers, missing fingers, "
+                "blurry, worst quality, low quality, watermark, signature, text"
+            ),
+            description="Negative prompt used verbatim if the Ollama call fails.",
+        )
         default_checkpoint: str = Field(
             default="animagine-xl-4.0-opt.safetensors",
             description="Exact checkpoint filename shown by ComfyUI.",
@@ -124,6 +151,30 @@ class Tools:
             if images:
                 return images[0]
         raise RuntimeError("ComfyUI completed but returned no image output.")
+
+    async def _get_loaded_model(self, client: httpx.AsyncClient) -> str:
+        r = await client.get(f"{self.valves.ollama_url}/api/ps")
+        models = r.json().get("models", [])
+        if models:
+            return models[0]["name"]
+        if self.valves.ollama_model:
+            return self.valves.ollama_model
+        raise RuntimeError("No model loaded in Ollama and ollama_model valve is not set.")
+
+    async def _generate_negative_prompt(self, client: httpx.AsyncClient, positive_prompt: str) -> str:
+        model = await self._get_loaded_model(client)
+        r = await client.post(
+            f"{self.valves.ollama_url}/api/generate",
+            json={
+                "model": model,
+                "system": self.valves.negative_prompt_system,
+                "prompt": positive_prompt,
+                "stream": False,
+            },
+            timeout=httpx.Timeout(self.valves.request_timeout_seconds),
+        )
+        r.raise_for_status()
+        return r.json()["response"].strip()
 
     async def generate_anime_image(
         self,
