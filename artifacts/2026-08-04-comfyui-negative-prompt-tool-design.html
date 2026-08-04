@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ComfyUI Negative Prompt Tool — Design Spec</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --text: #1a1a2e;
+      --text-secondary: #4a4a6a;
+      --bg: #f8f8fc;
+      --surface: #ffffff;
+      --border: #e2e2ee;
+      --accent: #4f46e5;
+      --accent-light: #ede9fe;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --amber: #b45309;
+      --amber-light: #fef3c7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --code-bg: #f1f0f9;
+      --font-mono: 'Menlo', 'Consolas', 'Courier New', monospace;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text);
+      background: var(--bg);
+      padding: 2rem 1rem;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      border-left: 4px solid var(--accent);
+      padding: 1.5rem 1.5rem 1.5rem 2rem;
+      background: var(--surface);
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+    .meta {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.25rem 0.7rem;
+      border-radius: 99px;
+      letter-spacing: 0.02em;
+    }
+    .badge-green { background: var(--green-light); color: var(--green); }
+    .badge-purple { background: var(--accent-light); color: var(--accent); }
+    .meta-item { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* Section */
+    section { margin-bottom: 2.5rem; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 1.25rem 0 0.5rem;
+    }
+    p { margin-bottom: 0.75rem; color: var(--text-secondary); }
+    p:last-child { margin-bottom: 0; }
+
+    /* Problem / Goal callouts */
+    .callout {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .callout-amber { background: var(--amber-light); color: var(--amber); border-left: 3px solid var(--amber); }
+    .callout-green  { background: var(--green-light);  color: var(--green);  border-left: 3px solid var(--green); }
+    .callout strong { font-weight: 700; }
+
+    /* Flow diagram */
+    .flow {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.9;
+      overflow-x: auto;
+    }
+    .flow .step-label {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 0 0.4rem;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+    .flow .arrow { color: var(--accent); }
+    .flow .comment { color: var(--text-secondary); }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      background: var(--surface);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    thead tr { background: var(--accent); color: #fff; }
+    thead th { padding: 0.65rem 1rem; text-align: left; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.04em; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    td { padding: 0.6rem 1rem; vertical-align: top; color: var(--text-secondary); }
+    td:first-child { color: var(--text); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; }
+    td strong { color: var(--text); font-weight: 600; }
+
+    /* Error handling table — special cell coloring */
+    .err-continue td:last-child { color: var(--green); font-weight: 600; }
+    .err-stop td:last-child { color: var(--red); font-weight: 600; }
+
+    /* Code blocks */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      background: var(--code-bg);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+    pre code { background: none; padding: 0; color: var(--text); }
+
+    /* Status steps */
+    .status-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .status-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Deployment steps */
+    .deploy-list {
+      list-style: none;
+      counter-reset: deploy;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .deploy-list li {
+      counter-increment: deploy;
+      display: flex;
+      gap: 1rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .deploy-list li::before {
+      content: counter(deploy);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--green-light);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    /* Out of scope */
+    .oos-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .oos-list li {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      padding-left: 1.4rem;
+      position: relative;
+    }
+    .oos-list li::before {
+      content: "✕";
+      position: absolute;
+      left: 0;
+      color: #ccc;
+      font-size: 0.75rem;
+    }
+
+    /* Note box */
+    .note {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+    }
+    .note strong { color: var(--accent); }
+
+    /* Print */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .page { max-width: 100%; }
+      .header { box-shadow: none; }
+      pre, .flow { break-inside: avoid; }
+      table { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>ComfyUI Negative Prompt Auto-Generation Tool</h1>
+    <div class="meta">
+      <span class="badge badge-green">&#10003; Approved</span>
+      <span class="badge badge-purple">Open WebUI Tool</span>
+      <span class="meta-item">2026-08-04</span>
+      <span class="meta-item">compose/comfyui/tools/image_negative_prompt_gen.py</span>
+    </div>
+  </div>
+
+  <!-- Problem & Goal -->
+  <section>
+    <h2>Problem &amp; Goal</h2>
+    <div class="callout callout-amber">
+      <strong>Problem:</strong> Open WebUI's built-in ComfyUI integration only populates the positive prompt (node 6). Node 7 (negative) stays hardcoded at the workflow default — a generic artefact list not tailored to the subject being drawn.
+    </div>
+    <div class="callout callout-green">
+      <strong>Goal:</strong> Replace the generic negative prompt with one automatically generated from the positive prompt using the same LLM already in VRAM — no model swap, no new services.
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section>
+    <h2>Architecture</h2>
+    <p>An Open WebUI <strong>Tool</strong> (Python plugin). Gemma4 calls the tool when the user requests an image. Negative prompt generation and ComfyUI submission both happen inside the tool.</p>
+
+    <h3>Data Flow</h3>
+    <div class="flow">
+      User: "draw an anime girl reading in a rainy library"<br>
+      <span class="arrow">↓</span><br>
+      Gemma4 <span class="arrow">→</span> calls <strong>generate_anime_image</strong>(positive_prompt="...")<br>
+      <span class="arrow">↓</span><br>
+      <span class="step-label">Step 1</span> <span class="comment">GET /api/ps → discover loaded model name</span><br>
+      <span class="step-label">Step 2</span> <span class="comment">POST /api/generate to Ollama</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; system: &lt;negative_prompt_system valve&gt;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; prompt: &lt;positive_prompt&gt;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stream: false<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="arrow">→</span> "lowres, bad anatomy, extra fingers, blurry, watermark…"<br>
+      <span class="step-label">Step 3</span> <span class="comment">POST /prompt to ComfyUI</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; node 6 <span class="arrow">←</span> positive_prompt<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; node 7 <span class="arrow">←</span> generated negative_prompt<br>
+      <span class="step-label">Step 4</span> <span class="comment">Poll /history → fetch image bytes</span><br>
+      <span class="arrow">↓</span><br>
+      HTMLResponse: inline image + collapsible details (both prompts, seed, size, steps)
+    </div>
+
+    <div class="note">
+      <strong>No model eviction.</strong> Gemma4 is already loaded from the chat turn that triggered the tool. The internal Ollama call hits the same model — no swap, ~3–8 s added latency before ComfyUI starts.
+    </div>
+  </section>
+
+  <!-- Tool Signature -->
+  <section>
+    <h2>Tool Signature</h2>
+    <p><code>negative_prompt</code> is <strong>not</strong> a parameter. The LLM never supplies it — it is generated inside the tool from <code>positive_prompt</code>.</p>
+    <pre><code>async def generate_anime_image(
+    self,
+    positive_prompt: str,
+    checkpoint: Optional[str] = None,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
+    steps: Optional[int] = None,
+    cfg: Optional[float] = None,
+    seed: Optional[int] = None,
+    __event_emitter__: Optional[Callable] = None,
+) -> HTMLResponse:</code></pre>
+  </section>
+
+  <!-- Valves -->
+  <section>
+    <h2>Valves</h2>
+    <table>
+      <thead><tr><th>Valve</th><th>Default</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>comfyui_url</td><td>http://comfyui:8188</td><td>ComfyUI endpoint</td></tr>
+        <tr><td>ollama_url</td><td>http://ollama:11434</td><td>Ollama endpoint (backend network)</td></tr>
+        <tr><td>ollama_model</td><td>""</td><td>Override model name; empty = auto-detect via /api/ps</td></tr>
+        <tr><td>negative_prompt_system</td><td><em>see below</em></td><td>System prompt for negative generation — tune from admin UI without code changes</td></tr>
+        <tr><td>negative_prompt_fallback</td><td>lowres, bad anatomy, bad hands…</td><td>Used verbatim if the Ollama call fails</td></tr>
+        <tr><td>default_checkpoint</td><td>animagine-xl-4.0-opt.safetensors</td><td>ComfyUI checkpoint filename</td></tr>
+        <tr><td>default_width</td><td>1024</td><td>Image width (px)</td></tr>
+        <tr><td>default_height</td><td>1024</td><td>Image height (px)</td></tr>
+        <tr><td>default_steps</td><td>28</td><td>KSampler steps</td></tr>
+        <tr><td>default_cfg</td><td>5.0</td><td>CFG guidance scale</td></tr>
+        <tr><td>sampler_name</td><td>euler_ancestral</td><td>KSampler sampler</td></tr>
+        <tr><td>scheduler</td><td>normal</td><td>KSampler scheduler</td></tr>
+        <tr><td>request_timeout_seconds</td><td>30</td><td>HTTP timeout for Ollama/ComfyUI requests</td></tr>
+        <tr><td>generation_timeout_seconds</td><td>300</td><td>Max wait for ComfyUI to finish</td></tr>
+        <tr><td>poll_interval_seconds</td><td>1.0</td><td>ComfyUI history poll interval</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Default negative_prompt_system</h3>
+    <pre><code>You are a Stable Diffusion prompt engineer. Given a positive image prompt,
+output ONLY a comma-separated negative prompt with no explanation or preamble.
+Exclude: anatomy defects (bad anatomy, bad hands, extra fingers, missing fingers,
+fused limbs), quality defects (lowres, blurry, jpeg artifacts, noise, worst quality),
+and unwanted content (text, watermark, signature, logo, username).
+Also exclude traits that contradict the style, mood, or subject in the positive prompt.
+Never negate a trait that was explicitly requested.</code></pre>
+  </section>
+
+  <!-- Key Methods -->
+  <section>
+    <h2>Key Internal Methods</h2>
+    <h3>_get_loaded_model</h3>
+    <pre><code>async def _get_loaded_model(self, client: httpx.AsyncClient) -> str:
+    r = await client.get(f"{self.valves.ollama_url}/api/ps")
+    models = r.json().get("models", [])
+    if models:
+        return models[0]["name"]
+    if self.valves.ollama_model:
+        return self.valves.ollama_model
+    raise RuntimeError("No model loaded in Ollama and ollama_model valve is not set.")</code></pre>
+
+    <h3>_generate_negative_prompt</h3>
+    <pre><code>async def _generate_negative_prompt(self, client: httpx.AsyncClient, positive_prompt: str) -> str:
+    model = await self._get_loaded_model(client)
+    r = await client.post(
+        f"{self.valves.ollama_url}/api/generate",
+        json={
+            "model": model,
+            "system": self.valves.negative_prompt_system,
+            "prompt": positive_prompt,
+            "stream": False,
+        },
+        timeout=httpx.Timeout(30.0),
+    )
+    r.raise_for_status()
+    return r.json()["response"].strip()</code></pre>
+  </section>
+
+  <!-- Error Handling -->
+  <section>
+    <h2>Error Handling</h2>
+    <table>
+      <thead><tr><th>Failure</th><th>Behaviour</th></tr></thead>
+      <tbody>
+        <tr class="err-continue"><td>Ollama unreachable / /api/ps fails</td><td>Emit warning → use fallback → continue to ComfyUI</td></tr>
+        <tr class="err-continue"><td>Ollama returns empty / malformed response</td><td>Emit warning → use fallback → continue to ComfyUI</td></tr>
+        <tr class="err-stop"><td>ComfyUI unreachable</td><td>Emit error → raise — no image returned</td></tr>
+        <tr class="err-stop"><td>ComfyUI rejects workflow</td><td>Emit error → raise — no image returned</td></tr>
+      </tbody>
+    </table>
+    <div class="note">Image generation is never blocked by a failure in the negative prompt step. The fallback produces the same result as today's hardcoded node 7.</div>
+  </section>
+
+  <!-- Status Messages -->
+  <section>
+    <h2>Status Messages (emitted to chat)</h2>
+    <ul class="status-list">
+      <li><span class="step-num">1</span> Generating negative prompt…</li>
+      <li><span class="step-num">2</span> Submitting workflow to ComfyUI…</li>
+      <li><span class="step-num">3</span> Generating image (seed XXXXXX)…</li>
+      <li><span class="step-num">4</span> Image generated successfully. <em>(or error message)</em></li>
+    </ul>
+  </section>
+
+  <!-- ComfyUI Workflow -->
+  <section>
+    <h2>ComfyUI Workflow (inline)</h2>
+    <table>
+      <thead><tr><th>Node</th><th>Type</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>4</td><td>CheckpointLoaderSimple</td><td>checkpoint valve</td></tr>
+        <tr><td>5</td><td>EmptyLatentImage</td><td>width / height valves</td></tr>
+        <tr><td>6</td><td>CLIPTextEncode (Positive)</td><td><strong>positive_prompt from LLM</strong></td></tr>
+        <tr><td>7</td><td>CLIPTextEncode (Negative)</td><td><strong>auto-generated by tool</strong></td></tr>
+        <tr><td>8</td><td>KSampler</td><td>steps, cfg, seed, sampler, scheduler</td></tr>
+        <tr><td>9</td><td>VAEDecode</td><td>—</td></tr>
+        <tr><td>10</td><td>SaveImage</td><td>prefix: open-webui/anime</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Deployment -->
+  <section>
+    <h2>Deployment</h2>
+    <ul class="deploy-list">
+      <li>Update <code>compose/comfyui/tools/image_negative_prompt_gen.py</code> with the final implementation.</li>
+      <li>In Open WebUI admin UI: <strong>Workspace → Tools → Create new tool</strong> → paste file content.</li>
+      <li>Set <code>ollama_url</code> and <code>comfyui_url</code> valves via the tool settings panel.</li>
+      <li>In Open WebUI admin UI: <strong>Workspace → Models → Gemma4</strong> → enable this tool.</li>
+      <li>Test: ask Gemma4 to generate an image. Confirm both prompts appear in the collapsible "Generation details" section.</li>
+    </ul>
+    <div class="note"><strong>No Docker or compose changes required.</strong> The existing built-in image generation (.cfg files, prompt_node = 6) is unaffected — it is a separate code path used by the native image button.</div>
+  </section>
+
+  <!-- Out of Scope -->
+  <section>
+    <h2>Out of Scope</h2>
+    <ul class="oos-list">
+      <li>Replacing the built-in image generation integration</li>
+      <li>Supporting multiple simultaneous image requests</li>
+      <li>Negative prompt caching or reuse across requests</li>
+      <li>Supporting workflows with different node layouts</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
