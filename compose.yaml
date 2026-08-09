@@ -1,58 +1,6 @@
 name: local-ai-appliance
 
 services:
-  traefik:
-    image: ${TRAEFIK_IMAGE}
-    container_name: ai-traefik
-    restart: unless-stopped
-    command:
-      - --api=false
-      - --log.level=INFO
-      - --accesslog=true
-      - --entrypoints.web.address=:80
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.web.forwardedHeaders.insecure=true
-      - --entrypoints.websecure.forwardedHeaders.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.network=ai_proxy
-      - --providers.file.directory=/etc/traefik/dynamic
-      - --providers.file.watch=true
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53
-    environment:
-      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
-    ports:
-      - "${TRAEFIK_BIND_IP}:80:80"
-      - "${TRAEFIK_BIND_IP}:443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/ai-files/traefik/dynamic:/etc/traefik/dynamic:ro
-      - /mnt/ai-files/traefik/acme:/etc/traefik/acme
-    networks:
-      - proxy
-    security_opt:
-      - no-new-privileges:true
-
-  redis:
-    image: ${REDIS_IMAGE}
-    container_name: ai-redis
-    restart: unless-stopped
-    volumes:
-      - /mnt/ai-files/redis/data:/data
-    networks:
-      - database
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-
   postgres:
     image: ${POSTGRES_IMAGE}
     container_name: ai-postgres
@@ -270,33 +218,6 @@ services:
       - traefik.http.routers.openwebui.tls=true
       - traefik.http.routers.openwebui.tls.certresolver=letsencrypt
       - traefik.http.services.openwebui.loadbalancer.server.port=8080
-
-  # FUTURE: Add a self-hosted memory service here once a solution supports Ollama + PostgreSQL
-  # out of the box. Options to revisit:
-  #   - mem0 server (server/ dir) once it gains native Ollama support
-  #   - A community fork of mem0 with Ollama provider
-  #   - An alternative like Letta (formerly MemGPT)
-  # In the meantime, Open WebUI's built-in memory feature covers basic needs.
-
-  portainer:
-    image: ${PORTAINER_IMAGE}
-    container_name: ai-portainer
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/ai-files/portainer/data:/data
-    networks:
-      - proxy
-    security_opt:
-      - no-new-privileges:true
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=ai_proxy
-      - traefik.http.routers.portainer.rule=Host(`${PORTAINER_FQDN}`)
-      - traefik.http.routers.portainer.entrypoints=websecure
-      - traefik.http.routers.portainer.tls=true
-      - traefik.http.routers.portainer.tls.certresolver=letsencrypt
-      - traefik.http.services.portainer.loadbalancer.server.port=9000
 
   searxng:
     container_name: ai-searxng
