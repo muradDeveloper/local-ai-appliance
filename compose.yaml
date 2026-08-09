@@ -163,30 +163,6 @@ services:
   #   - An alternative like Letta (formerly MemGPT)
   # In the meantime, Open WebUI's built-in memory feature covers basic needs.
 
-  portainer:
-    image: ${PORTAINER_IMAGE}
-    container_name: ai-portainer
-    restart: unless-stopped
-    init: true
-    ports:
-      - "${LLM_BIND_IP}:9000:9000"
-      - "${LLM_BIND_IP}:9443:9443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${AI_FILES_BASE}/portainer/data:/data
-    networks:
-      - proxy
-    security_opt:
-      - no-new-privileges:true
-    # labels:
-    #   - traefik.enable=true
-    #   - traefik.docker.network=ai_proxy
-    #   - traefik.http.routers.portainer.rule=Host(`${PORTAINER_FQDN}`)
-    #   - traefik.http.routers.portainer.entrypoints=websecure
-    #   - traefik.http.routers.portainer.tls=true
-    #   - traefik.http.routers.portainer.tls.certresolver=letsencrypt
-    #   - traefik.http.services.portainer.loadbalancer.server.port=9000
-
   searxng:
     container_name: ai-searxng
     image: ${SEARXNG_IMAGE}
