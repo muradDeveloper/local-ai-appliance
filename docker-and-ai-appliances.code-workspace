@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../local-docker-stacks"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}

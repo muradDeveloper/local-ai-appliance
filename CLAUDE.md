@@ -14,7 +14,8 @@ DNS routing and TLS termination are handled by an **external Traefik instance** 
 
 - Do not expose any service directly to the public Internet — all external access goes through the external Traefik instance.
 - Services that need to be reachable by the external Traefik must bind on the LAN IP (`192.168.1.63`) with explicit host ports. Do not bind on `0.0.0.0`.
-- Ollama, PostgreSQL, Redis, faster-whisper and Kokoro must remain on private Docker networks with no host port binding.
+- PostgreSQL, Redis, faster-whisper and Kokoro must remain on private Docker networks with no host port binding.
+- Ollama may bind on the LAN IP (`192.168.1.63:11434:11434`) to allow direct access from trusted LAN clients (e.g. local scripts and tooling). It must never bind on `0.0.0.0` or be exposed to the public Internet.
 - Authentik is the identity provider. Open WebUI remains the application authorisation boundary.
 - Do not replace OIDC with proxy-header authentication unless an ADR explicitly approves it.
 - Do not commit secrets, private keys, database dumps, access tokens or real hostnames.

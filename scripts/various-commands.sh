@@ -36,3 +36,8 @@ timedatectl set-timezone Australia/Melbourne
 wget -c "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors" \
   -O /mnt/ai-files/comfyui/models/vae/ae.safetensors \
   --header "Authorization: Bearer ${HF_TOKEN}"
+
+
+## Docker-bound ports:
+
+docker ps --format "table {{.Names}}\t{{.Ports}}"

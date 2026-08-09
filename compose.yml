@@ -6,6 +6,9 @@ services:
     image: ${POSTGRES_IMAGE}
     container_name: ai-postgres
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
@@ -14,8 +17,8 @@ services:
       OPENWEBUI_DB_NAME: ${OPENWEBUI_DB_NAME}
 
     volumes:
-      - /mnt/ai-files/postgres:/var/lib/postgresql
-      - /mnt/ai-files/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ${AI_FILES_BASE}/postgres:/var/lib/postgresql
+      - ${AI_FILES_BASE}/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - database
     healthcheck:
@@ -28,12 +31,15 @@ services:
     image: ${OLLAMA_IMAGE}
     container_name: ollama
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
     expose:
       - "11434"
     ports:
-      - "127.0.0.1:11434:11434"
+      - "${LLM_BIND_IP}:11434:11434"
     volumes:
-      - /mnt/ai-files/ollama/data:/root/.ollama
+      - ${AI_FILES_BASE}/ollama/data:/root/.ollama
     networks:
       - backend
     healthcheck:
@@ -56,12 +62,15 @@ services:
     image: ${SPEACHES_IMAGE}
     container_name: ai-speaches
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
     environment:
       TZ: ${TZ}
       WHISPER__INFERENCE_DEVICE: cpu
       PRELOAD_MODELS: "Systran/faster-whisper-medium,speaches-ai/Kokoro-82M-v1.0-ONNX"
     volumes:
-      - /mnt/ai-files/speaches/models:/home/ubuntu/.cache/huggingface/hub
+      - ${AI_FILES_BASE}/speaches/models:/home/ubuntu/.cache/huggingface/hub
     networks:
       - backend
     expose:
@@ -78,8 +87,11 @@ services:
     image: ${OPEN_WEBUI_IMAGE}
     container_name: ai-open-webui
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - "192.168.1.63:8080:8080"
+      - "${LLM_BIND_IP}:8080:8080"
     environment:
       TZ: ${TZ}
       WEBUI_URL: https://${AI_FQDN}
@@ -113,8 +125,9 @@ services:
       COMFYUI_BASE_URL: http://comfyui:8188
       COMFYUI_WORKFLOW: '{"4":{"inputs":{"ckpt_name":"animagine-xl-4.0-opt.safetensors"},"class_type":"CheckpointLoaderSimple","_meta":{"title":"Load Checkpoint"}},"5":{"inputs":{"width":1024,"height":1024,"batch_size":1},"class_type":"EmptyLatentImage","_meta":{"title":"Empty Latent Image"}},"6":{"inputs":{"text":"masterpiece, high score, great score, absurdres, 1girl, solo, long black hair, blue eyes, modern casual clothing, standing in a bright modern kitchen, clean anime illustration, detailed eyes, clean lineart, soft shading, colorful lighting","clip":["4",1]},"class_type":"CLIPTextEncode","_meta":{"title":"CLIP Text Encode (Positive Prompt)"}},"7":{"inputs":{"text":"lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, worst quality, low quality, normal quality, blurry, signature, watermark, username","clip":["4",1]},"class_type":"CLIPTextEncode","_meta":{"title":"CLIP Text Encode (Negative Prompt)"}},"8":{"inputs":{"seed":173805153958730,"steps":28,"cfg":5,"sampler_name":"euler_ancestral","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"9":{"inputs":{"samples":["8",0],"vae":["4",2]},"class_type":"VAEDecode","_meta":{"title":"VAE Decode"}},"10":{"inputs":{"filename_prefix":"animagine/anime","images":["9",0]},"class_type":"SaveImage","_meta":{"title":"Save Image"}}}'
     volumes:
-      - /mnt/ai-files/open-webui/data:/app/backend/data
-      - /mnt/ai-files/open-webui/knowledge:/knowledge:ro
+      - ${AI_FILES_BASE}/open-webui/data:/app/backend/data
+      - ${AI_FILES_BASE}/open-webui/knowledge:/knowledge:ro
+      - ${AI_FILES_BASE}/open-webui/profiles:/app/profiles:ro
     networks:
       - proxy
       - backend
@@ -154,12 +167,13 @@ services:
     image: ${PORTAINER_IMAGE}
     container_name: ai-portainer
     restart: unless-stopped
+    init: true
     ports:
-      - "192.168.1.63:9000:9000"
-      - "192.168.1.63:9443:9443"
+      - "${LLM_BIND_IP}:9000:9000"
+      - "${LLM_BIND_IP}:9443:9443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/ai-files/portainer/data:/data
+      - ${AI_FILES_BASE}/portainer/data:/data
     networks:
       - proxy
     security_opt:
@@ -177,14 +191,19 @@ services:
     container_name: ai-searxng
     image: ${SEARXNG_IMAGE}
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${LLM_BIND_IP}:8888:8080"
     environment:
       TZ: ${TZ}
     networks:
       - proxy
       - backend
     volumes:
-      - /mnt/ai-files/searxng/config:/etc/searxng:rw
-      - /mnt/ai-files/searxng/cache:/var/cache/searxng
+      - ${AI_FILES_BASE}/searxng/config:/etc/searxng:rw
+      - ${AI_FILES_BASE}/searxng/cache:/var/cache/searxng
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
       interval: 30s
@@ -219,8 +238,11 @@ services:
       context: ./open-webui/weather
     container_name: ai-weather-server
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - "192.168.1.63:8000:8000"
+      - "${LLM_BIND_IP}:8000:8000"
     environment:
       TZ: ${TZ}
     volumes:
@@ -251,19 +273,25 @@ services:
     image: ${COMFYUI_IMAGE}
     container_name: ai-comfyui
     restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - "192.168.1.63:8188:8188"
+      - "${LLM_BIND_IP}:8188:8188"
     environment:
       CLI_ARGS: ""
       # CLI_ARGS: "--lowvram"    # if VRAM is tight while Ollama is running
       # CLI_ARGS: "--gpu-only"   # force all processing onto GPU
       # CLI_ARGS: "--fast"       # experimental speed optimisations
     volumes:
-      - /mnt/ai-files/comfyui/models:/root/ComfyUI/models
-      - /mnt/ai-files/comfyui/output:/root/ComfyUI/output
-      - /mnt/ai-files/comfyui/input:/root/ComfyUI/input
-      - /mnt/ai-files/comfyui/custom_nodes:/root/ComfyUI/custom_nodes
-      - /mnt/ai-files/comfyui/user:/root/ComfyUI/user
+      - ${AI_FILES_BASE}/comfyui/models:/root/ComfyUI/models
+      - ${AI_FILES_BASE}/comfyui/output:/root/ComfyUI/output
+      - ${AI_FILES_BASE}/comfyui/input:/root/ComfyUI/input
+      - ${AI_FILES_BASE}/comfyui/custom_nodes:/root/ComfyUI/custom_nodes
+      - ${AI_FILES_BASE}/comfyui/user:/root/ComfyUI/user
+      # Runs pre-start.sh on every boot to install custom-node Python deps in the
+      # live interpreter (build-time install impossible: no python at build).
+      - ${AI_FILES_BASE}/comfyui/user-scripts:/root/user-scripts
     networks:
       - proxy
       - backend

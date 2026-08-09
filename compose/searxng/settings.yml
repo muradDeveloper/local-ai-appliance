@@ -1,7 +1,12 @@
 # SearXNG configuration for local AI appliance
 # JSON format must be enabled for Open WebUI web search integration.
 
-use_default_settings: true
+use_default_settings:
+  engines:
+    remove:
+      - wikidata
+      - ahmia
+      - torch
 
 general:
   instance_title: "Local AI Search"
@@ -34,6 +39,8 @@ ui:
   results_on_new_tab: false
 
 engines:
+  - name: startpage
+    disabled: true
   - name: brave
     disabled: true
   - name: brave.images
@@ -42,9 +49,8 @@ engines:
     disabled: true
   - name: brave.videos
     disabled: true
-  - name: wikidata
-    disabled: true
   - name: wttrin
+    engine: wttr
     disabled: false
     categories: weather
     url: https://wttr.in/

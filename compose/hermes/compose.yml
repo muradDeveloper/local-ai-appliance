@@ -6,6 +6,9 @@ services:
     image: ${HERMES_IMAGE}
     container_name: ai-hermes
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command: ["gateway", "run"]
     ports:
       - "${BIND_IP}:8642:8642"
       - "${BIND_IP}:9119:9119"
@@ -19,7 +22,7 @@ services:
       - proxy
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8642/v1/models || exit 1"]
+      test: ["CMD-SHELL", "curl -fs http://localhost:8642/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12

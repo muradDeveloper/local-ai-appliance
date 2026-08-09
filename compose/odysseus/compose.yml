@@ -4,9 +4,9 @@ services:
 
   odysseus:
     build:
-      context: https://github.com/pewdiepie-archdaemon/odysseus.git#dev
+      #context: https://github.com/pewdiepie-archdaemon/odysseus.git#dev
       # Alternatively, use a local clone:
-      # context: /path/to/odysseus
+      context: /root/repos/odysseus
     container_name: ai-odysseus
     restart: unless-stopped
     init: true
@@ -26,7 +26,7 @@ services:
       chromadb:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:7000/ || exit 1"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:7000/')\""]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -44,7 +44,7 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8000/api/v2/heartbeat || exit 1"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v2/heartbeat')"]
       interval: 10s
       timeout: 5s
       retries: 12

@@ -1,0 +1,1802 @@
+profiles:
+  west_african:
+    - profile_id: west_african_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "West African"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, medium length, softly defined jaw"
+        eye_geometry: "almond eyes, medium spacing, slightly deep-set"
+        nose_geometry: "medium bridge, broad base, rounded tip"
+        lip_geometry: "medium-wide mouth, full upper and lower lips"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short tight curls"
+        clothing: "smart casual shirt or traditional-inspired tunic"
+        jewellery: "minimal"
+        setting: "outdoor urban portrait"
+
+    - profile_id: west_african_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "West African"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, pronounced cheekbones, tapered chin"
+        eye_geometry: "slightly narrow almond eyes, moderate spacing"
+        nose_geometry: "straight medium-low bridge, broad nostrils, soft tip"
+        lip_geometry: "wide mouth, defined cupid bow, full lower lip"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short coiled fade"
+        clothing: "linen shirt or neat jacket"
+        jewellery: "small chain"
+        setting: "studio portrait"
+
+    - profile_id: west_african_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "West African"
+        nationality: optional
+      morphology:
+        face_shape: "square-oval face, strong jawline, broad forehead"
+        eye_geometry: "medium-large eyes, even spacing, calm expression"
+        nose_geometry: "medium bridge height, broad bridge, rounded nose tip"
+        lip_geometry: "broad mouth, balanced full lips"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: warm
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "very short curls or close crop"
+        clothing: "plain t-shirt or collared shirt"
+        jewellery: "none"
+        setting: "natural daylight portrait"
+
+    - profile_id: west_african_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "West African"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, high cheekbones, softly narrowed chin"
+        eye_geometry: "large almond eyes, medium spacing, slight lid definition"
+        nose_geometry: "medium bridge, softly broad base, rounded tip"
+        lip_geometry: "full lips, defined cupid bow, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "braids, twists, or natural curls"
+        clothing: "colourful dress or elegant blouse"
+        jewellery: "gold earrings"
+        setting: "clean editorial portrait"
+
+    - profile_id: west_african_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "West African"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, softly full cheeks, refined jaw"
+        eye_geometry: "large almond eyes, slightly wide-set"
+        nose_geometry: "medium-low bridge, broad nostril base, soft rounded tip"
+        lip_geometry: "wide mouth, full lower lip, softly full upper lip"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "wrapped headscarf, braided updo, or soft coils"
+        clothing: "flowing top or traditional-inspired garment"
+        jewellery: "statement earrings"
+        setting: "warm outdoor portrait"
+
+  east_african:
+    - profile_id: east_african_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "East African"
+        nationality: optional
+      morphology:
+        face_shape: "elongated oval face, lean cheeks, defined jaw"
+        eye_geometry: "almond eyes, slightly deep-set, medium spacing"
+        nose_geometry: "medium-high narrow bridge, defined tip"
+        lip_geometry: "medium mouth width, moderately full lips"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short curls or close cut"
+        clothing: "button-up shirt or light jacket"
+        jewellery: "minimal"
+        setting: "outdoor portrait with soft sun"
+
+    - profile_id: east_african_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "East African"
+        nationality: optional
+      morphology:
+        face_shape: "narrow oval face, subtle cheekbones, tapered chin"
+        eye_geometry: "slightly narrow almond eyes, even spacing"
+        nose_geometry: "straight bridge, medium width, softly projected tip"
+        lip_geometry: "moderately full lips, gently defined cupid bow"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: cool-neutral
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short textured curls"
+        clothing: "simple casual shirt"
+        jewellery: "none"
+        setting: "studio headshot"
+
+    - profile_id: east_african_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "East African"
+        nationality: optional
+      morphology:
+        face_shape: "long face, high forehead, angular jaw"
+        eye_geometry: "medium eyes, slightly hooded, balanced spacing"
+        nose_geometry: "high bridge, narrow base, softly rounded tip"
+        lip_geometry: "medium-wide mouth, full lower lip"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: neutral-warm
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short crop"
+        clothing: "plain tee or traditional shawl-inspired layer"
+        jewellery: "small ring"
+        setting: "documentary-style portrait"
+
+    - profile_id: east_african_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "East African"
+        nationality: optional
+      morphology:
+        face_shape: "elongated heart-shaped face, high cheekbones"
+        eye_geometry: "large almond eyes, slightly wide-set"
+        nose_geometry: "medium-high bridge, refined width, soft tip"
+        lip_geometry: "balanced full lips, gently shaped cupid bow"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "braided crown, natural curls, or wrapped scarf"
+        clothing: "elegant blouse or long dress"
+        jewellery: "delicate earrings"
+        setting: "soft studio portrait"
+
+    - profile_id: east_african_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "East African"
+        nationality: optional
+      morphology:
+        face_shape: "slim oval face, softly tapered jaw, subtle cheeks"
+        eye_geometry: "almond eyes, medium spacing, slight upward outer corners"
+        nose_geometry: "straight medium bridge, medium base"
+        lip_geometry: "medium mouth width, full lower lip, softly full upper lip"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "neat braids or soft curly updo"
+        clothing: "tailored top or cultural-inspired textile"
+        jewellery: "necklace or small hoops"
+        setting: "warm daylight portrait"
+
+  south_african:
+    - profile_id: south_african_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "South African"
+        nationality: optional
+      morphology:
+        face_shape: "medium oval face, defined cheekbones, soft square jaw"
+        eye_geometry: "medium almond eyes, balanced spacing"
+        nose_geometry: "medium bridge height, moderate width, rounded tip"
+        lip_geometry: "medium-wide mouth, naturally full lips"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short curls or textured crop"
+        clothing: "casual button shirt or jacket"
+        jewellery: "minimal"
+        setting: "city portrait"
+
+    - profile_id: south_african_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "South African"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, strong brow, tapered chin"
+        eye_geometry: "slightly deep-set eyes, medium size"
+        nose_geometry: "straight bridge, medium base, gently rounded tip"
+        lip_geometry: "medium mouth width, soft full lower lip"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "close cut or short coils"
+        clothing: "plain knit or collared shirt"
+        jewellery: "small chain"
+        setting: "outdoor natural light"
+
+    - profile_id: south_african_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "South African"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, fuller cheeks, moderate jaw definition"
+        eye_geometry: "round-almond eyes, slightly wide-set"
+        nose_geometry: "medium-low bridge, medium-broad nostrils"
+        lip_geometry: "broad mouth, full lips, soft cupid bow"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: light
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short wavy or curly hair"
+        clothing: "casual tee or outdoor jacket"
+        jewellery: "none"
+        setting: "lifestyle portrait"
+
+    - profile_id: south_african_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "South African"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, softly full cheeks, elegant jawline"
+        eye_geometry: "almond eyes, medium-large, balanced spacing"
+        nose_geometry: "medium bridge, moderate width, softly rounded tip"
+        lip_geometry: "full lips, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "loose curls, braids, or straightened shoulder-length hair"
+        clothing: "smart blouse or modern dress"
+        jewellery: "small hoops"
+        setting: "editorial portrait"
+
+    - profile_id: south_african_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "South African"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, high cheeks, tapered chin"
+        eye_geometry: "slightly upturned almond eyes, medium spacing"
+        nose_geometry: "straight medium bridge, refined base"
+        lip_geometry: "balanced lips, fuller lower lip"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: cool-neutral
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "natural curls, braided bun, or sleek hair"
+        clothing: "tailored top or contemporary ethnic-inspired garment"
+        jewellery: "delicate necklace"
+        setting: "soft daylight studio"
+
+  north_african:
+    - profile_id: north_african_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "North African"
+        nationality: optional
+      morphology:
+        face_shape: "angular oval face, defined cheekbones, medium jaw"
+        eye_geometry: "deep-set almond eyes, dark brows, medium spacing"
+        nose_geometry: "straight to slightly convex bridge, medium width"
+        lip_geometry: "medium mouth width, moderately full lips"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: olive-warm
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short dark wavy hair"
+        clothing: "collared shirt or light jacket"
+        jewellery: "minimal"
+        setting: "sunlit courtyard portrait"
+
+    - profile_id: north_african_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "North African"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, broad forehead, tapered chin"
+        eye_geometry: "almond eyes, slightly hooded, calm expression"
+        nose_geometry: "high bridge, medium base, gently defined tip"
+        lip_geometry: "medium lips, defined lip line"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: olive-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short cropped hair or soft waves"
+        clothing: "casual shirt or traditional-inspired tunic"
+        jewellery: "none"
+        setting: "desert-toned outdoor portrait"
+
+    - profile_id: north_african_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "North African"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, subtle cheek fullness, defined jaw"
+        eye_geometry: "medium almond eyes, slightly deep-set"
+        nose_geometry: "straight bridge, medium-broad base"
+        lip_geometry: "medium-wide mouth, softly full lower lip"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: light
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short textured hair"
+        clothing: "simple tee, shirt, or light robe-inspired outerwear"
+        jewellery: "small ring"
+        setting: "street portrait"
+
+    - profile_id: north_african_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "North African"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, pronounced cheekbones, delicate chin"
+        eye_geometry: "large almond eyes, slight outer lift, strong brows"
+        nose_geometry: "straight high bridge, refined tip"
+        lip_geometry: "medium-full lips, shaped cupid bow"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: olive-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "dark waves, covered hair, or elegant updo"
+        clothing: "flowing dress or refined blouse"
+        jewellery: "gold earrings"
+        setting: "soft editorial portrait"
+
+    - profile_id: north_african_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "North African"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, softly full cheeks, graceful jawline"
+        eye_geometry: "almond eyes, medium spacing, gently hooded lids"
+        nose_geometry: "slightly convex or straight bridge, medium width"
+        lip_geometry: "medium-wide mouth, full lower lip"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "wrapped scarf, loose curls, or shoulder-length waves"
+        clothing: "modest dress or modern tailored top"
+        jewellery: "delicate necklace"
+        setting: "sunlit terrace portrait"
+
+  arab:
+    - profile_id: arab_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Arab"
+        nationality: optional
+      morphology:
+        face_shape: "oval to angular face, defined nose line, strong jaw"
+        eye_geometry: "deep-set almond eyes, thick brows, medium spacing"
+        nose_geometry: "straight or slightly convex bridge, medium-high projection"
+        lip_geometry: "medium-full lips, medium mouth width"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: olive-warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short dark hair, neat beard optional"
+        clothing: "smart shirt, blazer, or thobe-inspired attire"
+        jewellery: "minimal"
+        setting: "studio or urban portrait"
+
+    - profile_id: arab_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Arab"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, high forehead, moderate cheekbones"
+        eye_geometry: "almond eyes, slightly hooded, focused expression"
+        nose_geometry: "high bridge, medium base"
+        lip_geometry: "medium lips, softly defined cupid bow"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short wavy hair"
+        clothing: "light jacket or traditional robe"
+        jewellery: "ring or watch"
+        setting: "warm interior portrait"
+
+    - profile_id: arab_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Arab"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, soft angular jaw, tapered chin"
+        eye_geometry: "medium almond eyes, balanced spacing"
+        nose_geometry: "straight bridge, medium width, defined tip"
+        lip_geometry: "medium-wide mouth, full lower lip"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "close cut or short textured hair"
+        clothing: "casual shirt or desert-toned outerwear"
+        jewellery: "none"
+        setting: "natural daylight portrait"
+
+    - profile_id: arab_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Arab"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, elegant cheekbones, refined chin"
+        eye_geometry: "large almond eyes, striking brows, slight outer lift"
+        nose_geometry: "high straight bridge, narrow-to-medium width"
+        lip_geometry: "full lips, defined cupid bow"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "covered hair, dark waves, or polished updo"
+        clothing: "modest elegant dress or blouse"
+        jewellery: "gold earrings or bracelet"
+        setting: "luxury editorial portrait"
+
+    - profile_id: arab_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Arab"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, softly full cheeks, graceful jawline"
+        eye_geometry: "almond eyes, medium spacing, gently hooded lids"
+        nose_geometry: "slightly convex or straight bridge, refined tip"
+        lip_geometry: "medium-full lips, wide gentle smile"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: olive-neutral
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "dark loose curls, covered styling, or sleek hair"
+        clothing: "flowing dress or contemporary modest fashion"
+        jewellery: "delicate necklace"
+        setting: "sunlit architectural portrait"
+
+  southeast_asian:
+    - profile_id: southeast_asian_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Southeast Asian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, gentle cheek fullness, moderate jawline"
+        eye_geometry: "almond eyes, slight epicanthic fold, medium spacing"
+        nose_geometry: "medium-low bridge, moderate width, rounded tip"
+        lip_geometry: "medium mouth width, balanced lips"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "straight short black hair"
+        clothing: "casual shirt or neat polo"
+        jewellery: "minimal"
+        setting: "street portrait"
+
+    - profile_id: southeast_asian_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Southeast Asian"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, softer jaw, medium forehead"
+        eye_geometry: "medium eyes, slight hooding, even spacing"
+        nose_geometry: "medium-low bridge, narrower tip, moderate nostril width"
+        lip_geometry: "medium-full lips, gently defined mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: neutral-warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "textured crop or side-parted straight hair"
+        clothing: "light button-up"
+        jewellery: "none"
+        setting: "clean studio portrait"
+
+    - profile_id: southeast_asian_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Southeast Asian"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, subtle cheekbones, tapered chin"
+        eye_geometry: "almond eyes, slight upward outer corners"
+        nose_geometry: "medium bridge, medium base, soft tip"
+        lip_geometry: "medium mouth width, fuller lower lip"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "straight short hair"
+        clothing: "simple tee or modern jacket"
+        jewellery: "small chain"
+        setting: "daylight urban portrait"
+
+    - profile_id: southeast_asian_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Southeast Asian"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, soft cheeks, tapered jaw"
+        eye_geometry: "almond eyes, slight epicanthic fold, bright expression"
+        nose_geometry: "medium-low bridge, refined tip"
+        lip_geometry: "medium mouth, full lower lip"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long straight dark hair or soft waves"
+        clothing: "blouse, dress, or traditional-inspired textile"
+        jewellery: "small earrings"
+        setting: "soft editorial portrait"
+
+    - profile_id: southeast_asian_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Southeast Asian"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, gentle jawline, subtle cheek fullness"
+        eye_geometry: "medium large almond eyes, slight hooding"
+        nose_geometry: "medium-low bridge, moderate width, rounded tip"
+        lip_geometry: "balanced lips, softly shaped cupid bow"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "braided, straight, or pinned-up dark hair"
+        clothing: "modern casual chic or formal dress"
+        jewellery: "delicate necklace"
+        setting: "daylight portrait"
+
+  east_asian:
+    - profile_id: east_asian_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "East Asian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, soft jawline, moderate cheekbones"
+        eye_geometry: "almond eyes, epicanthic fold, medium spacing"
+        nose_geometry: "medium-low bridge, moderate width, refined tip"
+        lip_geometry: "medium mouth width, balanced lips"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short straight black hair"
+        clothing: "minimal shirt or jacket"
+        jewellery: "none"
+        setting: "clean studio headshot"
+
+    - profile_id: east_asian_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "East Asian"
+        nationality: optional
+      morphology:
+        face_shape: "slim oval face, gentle chin taper"
+        eye_geometry: "slightly narrow almond eyes, medium spacing, subtle hooding"
+        nose_geometry: "straight medium bridge, compact tip"
+        lip_geometry: "medium lips, softly defined mouth line"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: cool-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "textured crop or side-parted straight hair"
+        clothing: "simple knit or collared shirt"
+        jewellery: "minimal"
+        setting: "editorial portrait"
+
+    - profile_id: east_asian_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "East Asian"
+        nationality: optional
+      morphology:
+        face_shape: "broader oval face, soft cheeks, moderate jaw"
+        eye_geometry: "medium almond eyes, slight epicanthic fold, calm expression"
+        nose_geometry: "medium-low bridge, medium base"
+        lip_geometry: "medium-wide mouth, fuller lower lip"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short straight hair or undercut"
+        clothing: "casual jacket or t-shirt"
+        jewellery: "small chain"
+        setting: "city portrait"
+
+    - profile_id: east_asian_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "East Asian"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, smooth jawline, small chin"
+        eye_geometry: "almond eyes, slight epicanthic fold, gentle outer lift"
+        nose_geometry: "medium-low bridge, refined narrow tip"
+        lip_geometry: "medium mouth, softly full lips"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: cool-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long straight dark hair or neat bob"
+        clothing: "minimal elegant blouse or dress"
+        jewellery: "delicate earrings"
+        setting: "soft studio portrait"
+
+    - profile_id: east_asian_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "East Asian"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, subtle cheeks, refined jaw"
+        eye_geometry: "medium large almond eyes, slight hooding"
+        nose_geometry: "straight medium bridge, compact nose tip"
+        lip_geometry: "balanced lips, softly defined cupid bow"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "shoulder-length straight hair or soft waves"
+        clothing: "contemporary dress or smart casual blouse"
+        jewellery: "small necklace"
+        setting: "daylight editorial portrait"
+
+  indian:
+    - profile_id: indian_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Indian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, defined brow, moderate jawline"
+        eye_geometry: "deep-set almond eyes, strong brows, medium spacing"
+        nose_geometry: "medium-high bridge, moderate width, softly defined tip"
+        lip_geometry: "medium-wide mouth, full lower lip"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short dark hair"
+        clothing: "collared shirt or kurta-inspired top"
+        jewellery: "minimal"
+        setting: "city or courtyard portrait"
+
+    - profile_id: indian_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Indian"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, subtle cheekbones, tapered chin"
+        eye_geometry: "almond eyes, slightly hooded"
+        nose_geometry: "straight to slightly convex bridge, medium projection"
+        lip_geometry: "medium lips, softly shaped mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short wavy dark hair"
+        clothing: "simple shirt or layered ethnic-inspired jacket"
+        jewellery: "ring or bracelet"
+        setting: "warm outdoor portrait"
+
+    - profile_id: indian_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Indian"
+        nationality: optional
+      morphology:
+        face_shape: "broader oval face, fuller cheeks, defined jaw"
+        eye_geometry: "medium almond eyes, balanced spacing, expressive brows"
+        nose_geometry: "medium-high bridge, medium-broad base"
+        lip_geometry: "medium-wide mouth, moderately full lips"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short textured hair"
+        clothing: "casual tee or neat kurta"
+        jewellery: "small chain"
+        setting: "lifestyle portrait"
+
+    - profile_id: indian_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Indian"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, graceful cheekbones, tapered chin"
+        eye_geometry: "large almond eyes, deep-set, defined lashes"
+        nose_geometry: "medium-high bridge, elegant tip"
+        lip_geometry: "full lips, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long dark hair, braid, or elegant updo"
+        clothing: "sari-inspired drape or refined blouse"
+        jewellery: "earrings, bangles, or nose stud optional"
+        setting: "soft editorial portrait"
+
+    - profile_id: indian_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Indian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, softly full cheeks, refined jawline"
+        eye_geometry: "almond eyes, medium spacing, strong brows"
+        nose_geometry: "straight to gently convex bridge, medium width"
+        lip_geometry: "balanced full lips, shaped cupid bow"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: neutral-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "straight dark hair, loose waves, or braid"
+        clothing: "modern ethnic fusion or formal dress"
+        jewellery: "delicate necklace and earrings"
+        setting: "daylight portrait"
+
+  iranian:
+    - profile_id: iranian_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Iranian"
+        nationality: optional
+      morphology:
+        face_shape: "angular oval face, defined cheekbones, strong jaw"
+        eye_geometry: "deep-set almond eyes, thick brows"
+        nose_geometry: "high straight or slightly convex bridge, prominent profile"
+        lip_geometry: "medium lips, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-neutral
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short dark wavy hair"
+        clothing: "smart shirt or dark jacket"
+        jewellery: "minimal"
+        setting: "cinematic portrait"
+
+    - profile_id: iranian_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Iranian"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, high forehead, tapered chin"
+        eye_geometry: "almond eyes, slightly hooded, medium spacing"
+        nose_geometry: "high bridge, narrow base, defined tip"
+        lip_geometry: "medium-full lips, clear lip line"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: olive-warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short side-parted hair"
+        clothing: "light knit or collared shirt"
+        jewellery: "ring"
+        setting: "studio portrait"
+
+    - profile_id: iranian_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Iranian"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, moderate cheeks, soft angular jaw"
+        eye_geometry: "medium almond eyes, dark brows, focused expression"
+        nose_geometry: "straight prominent bridge, medium width"
+        lip_geometry: "medium mouth width, fuller lower lip"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: olive-neutral
+        freckles: light
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short textured dark hair"
+        clothing: "casual blazer or simple shirt"
+        jewellery: "watch"
+        setting: "urban portrait"
+
+    - profile_id: iranian_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Iranian"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, prominent cheekbones, delicate chin"
+        eye_geometry: "large almond eyes, defined brows, slight outer lift"
+        nose_geometry: "high bridge, refined medium tip"
+        lip_geometry: "full lips, shaped cupid bow"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "dark waves, elegant updo, or covered styling"
+        clothing: "stylish dress or modest elegant attire"
+        jewellery: "gold or gemstone earrings"
+        setting: "editorial portrait"
+
+    - profile_id: iranian_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Iranian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, smooth jawline, softly full cheeks"
+        eye_geometry: "almond eyes, slightly hooded, deep gaze"
+        nose_geometry: "straight to gently convex bridge, refined projection"
+        lip_geometry: "medium-full lips, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: olive-warm
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "sleek dark hair, soft curls, or scarf styling"
+        clothing: "contemporary blouse or formal wear"
+        jewellery: "delicate necklace"
+        setting: "sunlit portrait"
+
+  chinese:
+    - profile_id: chinese_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Chinese"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, soft jawline, moderate cheek width"
+        eye_geometry: "almond eyes, subtle epicanthic fold, even spacing"
+        nose_geometry: "medium-low bridge, refined tip, moderate width"
+        lip_geometry: "medium mouth width, balanced lips"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short straight black hair"
+        clothing: "clean modern shirt or jacket"
+        jewellery: "minimal"
+        setting: "studio portrait"
+
+    - profile_id: chinese_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Chinese"
+        nationality: optional
+      morphology:
+        face_shape: "slim oval face, tapered chin, moderate forehead"
+        eye_geometry: "slightly narrow almond eyes, medium spacing"
+        nose_geometry: "straight medium bridge, compact nose tip"
+        lip_geometry: "medium lips, softly defined lip line"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: cool-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "side-parted or textured straight hair"
+        clothing: "smart casual knit or shirt"
+        jewellery: "none"
+        setting: "editorial headshot"
+
+    - profile_id: chinese_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Chinese"
+        nationality: optional
+      morphology:
+        face_shape: "broader oval face, soft cheeks, subtle jaw definition"
+        eye_geometry: "medium almond eyes, slight hooding, calm expression"
+        nose_geometry: "medium-low bridge, medium base"
+        lip_geometry: "medium-wide mouth, fuller lower lip"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm-neutral
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short straight hair or undercut"
+        clothing: "casual jacket"
+        jewellery: "small chain"
+        setting: "street portrait"
+
+    - profile_id: chinese_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Chinese"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, refined chin, soft cheeks"
+        eye_geometry: "almond eyes, subtle epicanthic fold, gentle outer lift"
+        nose_geometry: "medium-low bridge, narrow refined tip"
+        lip_geometry: "medium mouth, softly full lips"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long straight black hair or elegant bob"
+        clothing: "minimal elegant dress or blouse"
+        jewellery: "small earrings"
+        setting: "soft studio portrait"
+
+    - profile_id: chinese_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Chinese"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, gentle jawline, subtle cheek fullness"
+        eye_geometry: "medium large almond eyes, slight hooding"
+        nose_geometry: "straight medium bridge, compact tip"
+        lip_geometry: "balanced lips, gently shaped cupid bow"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "shoulder-length straight hair or soft waves"
+        clothing: "modern chic blouse or dress"
+        jewellery: "delicate necklace"
+        setting: "daylight portrait"
+
+  latin_american:
+    - profile_id: latin_american_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Latin American"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, moderate cheekbones, medium jawline"
+        eye_geometry: "almond eyes, medium spacing, expressive brows"
+        nose_geometry: "medium bridge, moderate width, softly defined tip"
+        lip_geometry: "medium-wide mouth, balanced full lips"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short wavy or straight dark hair"
+        clothing: "casual button-up or jacket"
+        jewellery: "minimal"
+        setting: "warm urban portrait"
+
+    - profile_id: latin_american_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Latin American"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, softly full cheeks, defined chin"
+        eye_geometry: "large almond eyes, balanced spacing"
+        nose_geometry: "straight medium bridge, medium-broad base"
+        lip_geometry: "medium mouth width, fuller lower lip"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: neutral-warm
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short textured hair"
+        clothing: "tee, shirt, or lightweight blazer"
+        jewellery: "ring or chain"
+        setting: "lifestyle portrait"
+
+    - profile_id: latin_american_m3
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Latin American"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, defined cheekbones, tapered jaw"
+        eye_geometry: "medium almond eyes, slightly deep-set"
+        nose_geometry: "slightly prominent straight bridge, refined tip"
+        lip_geometry: "medium lips, broad smile"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "wavy short hair"
+        clothing: "smart casual shirt"
+        jewellery: "minimal"
+        setting: "sunlit portrait"
+
+    - profile_id: latin_american_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Latin American"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, strong cheekbones, graceful jawline"
+        eye_geometry: "large almond eyes, expressive brows, medium spacing"
+        nose_geometry: "medium bridge, refined width, softly rounded tip"
+        lip_geometry: "full lips, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long dark waves or styled curls"
+        clothing: "elegant dress or chic blouse"
+        jewellery: "hoops or delicate necklace"
+        setting: "editorial portrait"
+
+    - profile_id: latin_american_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Latin American"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, soft cheeks, refined chin"
+        eye_geometry: "large almond eyes, slight outer lift"
+        nose_geometry: "straight to gently curved medium bridge"
+        lip_geometry: "balanced full lips, defined cupid bow"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-neutral
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "straight dark hair, ponytail, or soft curls"
+        clothing: "smart casual or formal dress"
+        jewellery: "earrings"
+        setting: "daylight portrait"
+
+  european:
+    - profile_id: european_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Northern European"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, strong defined jaw, moderate cheekbones"
+        eye_geometry: "round to almond eyes, wide-set, medium spacing"
+        nose_geometry: "straight high bridge, narrow to medium base, refined tip"
+        lip_geometry: "medium lips, defined cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: I
+        undertone: cool-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short fair or light brown hair"
+        clothing: "smart casual shirt or light jacket"
+        jewellery: "none"
+        setting: "outdoor daylight portrait"
+
+    - profile_id: european_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Southern European"
+        nationality: optional
+      morphology:
+        face_shape: "angular oval face, defined cheekbones, square jaw"
+        eye_geometry: "deep-set almond eyes, dark thick brows, medium spacing"
+        nose_geometry: "straight to slightly convex bridge, medium width, defined tip"
+        lip_geometry: "medium-full lips, well-defined lip line"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short dark wavy hair"
+        clothing: "open-collar shirt or relaxed jacket"
+        jewellery: "minimal"
+        setting: "sunlit Mediterranean portrait"
+
+    - profile_id: european_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Northern European"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, delicate cheekbones, soft chin"
+        eye_geometry: "wide round to almond eyes, light brows, gentle outer corners"
+        nose_geometry: "small straight bridge, narrow refined tip"
+        lip_geometry: "thin to medium lips, natural cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: I
+        undertone: cool-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "straight blonde or light hair, shoulder length"
+        clothing: "minimalist blouse or knit"
+        jewellery: "small stud earrings"
+        setting: "clean studio portrait"
+
+    - profile_id: european_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Eastern European"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, high prominent cheekbones, defined angular jaw"
+        eye_geometry: "almond eyes, wide-set, slightly upturned outer corners, strong brows"
+        nose_geometry: "straight medium bridge, narrow to medium base, refined tip"
+        lip_geometry: "medium-full lips, defined cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: cool-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "straight dark or chestnut hair, long or midi length"
+        clothing: "elegant blouse or fitted dress"
+        jewellery: "delicate gold earrings"
+        setting: "editorial studio portrait"
+
+    - profile_id: european_f3
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Mediterranean European"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, graceful cheekbones, softly refined chin"
+        eye_geometry: "large almond eyes, dark defined brows, slight outer lift"
+        nose_geometry: "straight or gently convex bridge, medium width"
+        lip_geometry: "full lips, defined cupid's bow, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: olive-warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long dark wavy hair"
+        clothing: "elegant dress or flowing blouse"
+        jewellery: "gold hoops or necklace"
+        setting: "warm Mediterranean outdoor portrait"
+
+  australian:
+    - profile_id: australian_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Anglo-Australian"
+        nationality: optional
+      morphology:
+        face_shape: "square-oval face, broad defined jaw, moderate cheekbones"
+        eye_geometry: "medium round eyes, wide-set, light to medium brows"
+        nose_geometry: "straight medium bridge, medium-broad base, rounded tip"
+        lip_geometry: "medium lips, balanced mouth"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short fair or sandy brown hair"
+        clothing: "casual open-collar shirt or t-shirt"
+        jewellery: "none"
+        setting: "outdoor sunlit portrait"
+
+    - profile_id: australian_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Anglo-Australian"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, strong jaw, subtle cheekbones, broad forehead"
+        eye_geometry: "medium almond eyes, slightly deep-set, medium brows"
+        nose_geometry: "straight medium bridge, medium base, defined tip"
+        lip_geometry: "medium lips, moderately defined mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm-neutral
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short brown or dark hair"
+        clothing: "smart casual shirt or light jacket"
+        jewellery: "minimal"
+        setting: "lifestyle outdoor portrait"
+
+    - profile_id: australian_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Anglo-Australian"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, soft cheekbones, delicate chin"
+        eye_geometry: "wide almond eyes, light to medium brows, gentle expression"
+        nose_geometry: "small straight bridge, refined tip"
+        lip_geometry: "medium lips, defined cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "blonde or light brown waves, shoulder length"
+        clothing: "casual sundress or blouse"
+        jewellery: "small earrings"
+        setting: "bright outdoor portrait"
+
+    - profile_id: australian_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Anglo-Australian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, moderate cheekbones, soft jaw"
+        eye_geometry: "round to almond eyes, medium spacing, arched brows"
+        nose_geometry: "straight medium bridge, medium tip"
+        lip_geometry: "medium lips, balanced cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: I
+        undertone: cool-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "fair or light auburn hair, straight or wavy"
+        clothing: "light blouse or knit top"
+        jewellery: "delicate necklace"
+        setting: "soft daylight studio portrait"
+
+    - profile_id: australian_f3
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Anglo-Australian"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, full cheeks, gentle jaw"
+        eye_geometry: "almond eyes, warm medium brows, medium spacing"
+        nose_geometry: "straight medium bridge, medium width, soft tip"
+        lip_geometry: "medium-full lips, softly shaped mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "chestnut or dark blonde hair, loosely styled"
+        clothing: "modern dress or casual chic top"
+        jewellery: "small hoops"
+        setting: "warm outdoor lifestyle portrait"
+
+  native_american:
+    - profile_id: native_american_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Native American"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, prominent high cheekbones, strong angular jaw"
+        eye_geometry: "dark almond eyes, slightly hooded, medium spacing, strong brows"
+        nose_geometry: "straight medium-high bridge, broad base, rounded tip"
+        lip_geometry: "medium-full lips, wide balanced mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "long straight dark hair or braids"
+        clothing: "simple shirt or traditional-inspired garment"
+        jewellery: "turquoise or beaded jewellery"
+        setting: "outdoor landscape portrait"
+
+    - profile_id: native_american_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Native American"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, high prominent cheekbones, defined angular jaw"
+        eye_geometry: "dark almond eyes, deep-set, medium spacing"
+        nose_geometry: "straight medium-high bridge, medium-broad base"
+        lip_geometry: "medium-wide mouth, balanced full lips"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm-neutral
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "short dark hair or medium-length straight hair"
+        clothing: "casual shirt or jacket"
+        jewellery: "minimal"
+        setting: "wide outdoor daylight portrait"
+
+    - profile_id: native_american_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Native American"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, high prominent cheekbones, gently tapered chin"
+        eye_geometry: "dark almond eyes, slightly hooded, wide-set, defined brows"
+        nose_geometry: "medium bridge, medium-broad base, rounded tip"
+        lip_geometry: "full lips, wide gentle mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long straight dark hair, loose or braided"
+        clothing: "traditional-inspired dress or blouse"
+        jewellery: "turquoise earrings or beaded necklace"
+        setting: "natural landscape portrait"
+
+    - profile_id: native_american_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Native American"
+        nationality: optional
+      morphology:
+        face_shape: "broad round-oval face, strong prominent cheekbones, soft chin"
+        eye_geometry: "dark round almond eyes, deep-set, medium spacing"
+        nose_geometry: "straight medium bridge, medium-broad nostrils"
+        lip_geometry: "medium-full lips, defined broad mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "long dark braids or loose straight hair"
+        clothing: "comfortable blouse or modern casual top"
+        jewellery: "beaded earrings"
+        setting: "outdoor daylight portrait"
+
+    - profile_id: native_american_f3
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Native American"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, angular prominent cheekbones, defined chin"
+        eye_geometry: "dark almond eyes, slightly hooded, evenly spaced"
+        nose_geometry: "high straight bridge, medium-broad base"
+        lip_geometry: "medium lips, well-defined mouth line"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm-neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "straight dark hair, long or mid-length"
+        clothing: "elegant contemporary dress or cultural textile"
+        jewellery: "silver and turquoise jewellery"
+        setting: "landscape editorial portrait"
+
+  aboriginal:
+    - profile_id: aboriginal_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Aboriginal Australian"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, strong brow ridge, defined angular jaw"
+        eye_geometry: "dark deep-set eyes, broad spacing, heavy brows"
+        nose_geometry: "broad bridge, wide nostrils, rounded tip"
+        lip_geometry: "full lips, wide broad mouth"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: warm
+        freckles: none
+        skin_texture: weathered natural
+      presentation:
+        hairstyle: "curly or wavy dark hair, natural"
+        clothing: "simple shirt or casual garment"
+        jewellery: "minimal"
+        setting: "outdoor portrait, warm light"
+
+    - profile_id: aboriginal_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "Aboriginal Australian"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, prominent brow ridge, tapered chin"
+        eye_geometry: "dark almond eyes, slightly deep-set, medium spacing"
+        nose_geometry: "medium-broad bridge, broad base, soft rounded tip"
+        lip_geometry: "medium-full lips, broad mouth"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: warm-neutral
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short curly dark hair"
+        clothing: "casual shirt or light jacket"
+        jewellery: "none"
+        setting: "natural daylight portrait"
+
+    - profile_id: aboriginal_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Aboriginal Australian"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, defined cheekbones, strong brow, gently tapered chin"
+        eye_geometry: "dark deep-set eyes, broad spacing, defined brows"
+        nose_geometry: "broad bridge, wide nostrils, rounded tip"
+        lip_geometry: "full lips, wide broad mouth"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "natural curly or wavy dark hair"
+        clothing: "contemporary dress or colourful top"
+        jewellery: "small earrings"
+        setting: "warm outdoor portrait"
+
+    - profile_id: aboriginal_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Aboriginal Australian"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, full cheeks, softly defined jaw"
+        eye_geometry: "dark round eyes, medium-broad spacing, expressive"
+        nose_geometry: "medium-broad bridge, moderate nostrils, soft tip"
+        lip_geometry: "medium-full lips, gentle wide mouth"
+      surface_appearance:
+        fitzpatrick_type: V
+        undertone: neutral-warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "curly dark hair, loose or pinned"
+        clothing: "casual blouse or modern dress"
+        jewellery: "delicate earrings"
+        setting: "soft editorial portrait"
+
+    - profile_id: aboriginal_f3
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "Aboriginal Australian"
+        nationality: optional
+      morphology:
+        face_shape: "long oval face, high cheekbones, tapered chin"
+        eye_geometry: "dark almond eyes, slightly deep-set, medium spacing"
+        nose_geometry: "medium bridge, broad base, rounded tip"
+        lip_geometry: "full lips, gently shaped broad mouth"
+      surface_appearance:
+        fitzpatrick_type: VI
+        undertone: warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "natural curly or wavy dark hair, mid-length"
+        clothing: "elegant contemporary dress"
+        jewellery: "ochre-inspired earrings"
+        setting: "warm daylight portrait"
+
+  north_american:
+    - profile_id: north_american_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "North American"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, defined medium jaw, moderate cheekbones"
+        eye_geometry: "medium round to almond eyes, medium spacing, medium brows"
+        nose_geometry: "straight medium bridge, medium base, defined tip"
+        lip_geometry: "medium lips, balanced mouth"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short brown or dark hair, neat"
+        clothing: "casual button-up or t-shirt"
+        jewellery: "none"
+        setting: "clean urban portrait"
+
+    - profile_id: north_american_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "North American"
+        nationality: optional
+      morphology:
+        face_shape: "square-oval face, broad defined jaw, strong cheekbones"
+        eye_geometry: "deep-set almond eyes, medium-dark brows, medium spacing"
+        nose_geometry: "straight medium bridge, medium-broad base"
+        lip_geometry: "medium-full lips, defined mouth line"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: natural
+      presentation:
+        hairstyle: "short dark or chestnut brown hair"
+        clothing: "smart casual shirt or jacket"
+        jewellery: "minimal"
+        setting: "urban lifestyle portrait"
+
+    - profile_id: north_american_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "North American"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, soft cheekbones, gentle jaw"
+        eye_geometry: "wide round eyes, light to medium brows, medium spacing"
+        nose_geometry: "straight small bridge, refined tip"
+        lip_geometry: "medium lips, defined cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: I
+        undertone: cool-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "blonde or light brown hair, straight or waves"
+        clothing: "casual blouse or minimal dress"
+        jewellery: "small stud earrings"
+        setting: "bright outdoor portrait"
+
+    - profile_id: north_american_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "North American"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, moderate cheekbones, soft refined chin"
+        eye_geometry: "almond eyes, medium brows, medium spacing"
+        nose_geometry: "straight medium bridge, refined tip"
+        lip_geometry: "medium-full lips, gently defined cupid's bow"
+      surface_appearance:
+        fitzpatrick_type: II
+        undertone: neutral-warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "chestnut or dark brown hair, medium length"
+        clothing: "smart casual blouse or contemporary dress"
+        jewellery: "delicate necklace"
+        setting: "lifestyle portrait"
+
+    - profile_id: north_american_f3
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "North American"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, full cheeks, soft jaw"
+        eye_geometry: "medium round almond eyes, arched brows, warm expression"
+        nose_geometry: "straight medium bridge, medium width, soft tip"
+        lip_geometry: "full lips, wide warm smile"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "dark brown wavy hair, loose or styled"
+        clothing: "casual chic top or dress"
+        jewellery: "gold hoops"
+        setting: "warm daylight portrait"
+
+  south_american:
+    - profile_id: south_american_m1
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "South American"
+        nationality: optional
+      morphology:
+        face_shape: "broad oval face, prominent high cheekbones, strong jaw"
+        eye_geometry: "dark almond eyes, slight hooding, medium spacing"
+        nose_geometry: "straight medium bridge, broad base, rounded tip"
+        lip_geometry: "medium-full lips, wide balanced mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "short straight dark hair"
+        clothing: "casual shirt or jacket"
+        jewellery: "minimal"
+        setting: "outdoor urban portrait"
+
+    - profile_id: south_american_m2
+      gender_presentation: male
+      identity_context:
+        ancestry_or_cultural_context: "South American"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, defined cheekbones, moderate jaw"
+        eye_geometry: "dark almond eyes, medium spacing, expressive brows"
+        nose_geometry: "straight medium bridge, medium base, defined tip"
+        lip_geometry: "medium-full lips, balanced mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm-neutral
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "short wavy dark hair"
+        clothing: "casual button-up or t-shirt"
+        jewellery: "none"
+        setting: "sunlit portrait"
+
+    - profile_id: south_american_f1
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "South American"
+        nationality: optional
+      morphology:
+        face_shape: "oval face, high prominent cheekbones, softly tapered chin"
+        eye_geometry: "dark almond eyes, slightly hooded, wide-set, defined brows"
+        nose_geometry: "medium bridge, medium-broad base, rounded tip"
+        lip_geometry: "full lips, wide gentle mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: warm
+        freckles: none
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long straight or wavy dark hair"
+        clothing: "vibrant dress or elegant blouse"
+        jewellery: "gold earrings"
+        setting: "warm outdoor portrait"
+
+    - profile_id: south_american_f2
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "South American"
+        nationality: optional
+      morphology:
+        face_shape: "heart-shaped face, elegant cheekbones, graceful jawline"
+        eye_geometry: "large dark almond eyes, defined arched brows, medium spacing"
+        nose_geometry: "medium bridge, refined tip, medium width"
+        lip_geometry: "full lips, defined cupid's bow, medium-wide mouth"
+      surface_appearance:
+        fitzpatrick_type: III
+        undertone: warm
+        freckles: light
+        skin_texture: smooth natural
+      presentation:
+        hairstyle: "long dark waves or styled curls"
+        clothing: "colourful dress or chic blouse"
+        jewellery: "hoops or delicate necklace"
+        setting: "vibrant outdoor editorial portrait"
+
+    - profile_id: south_american_f3
+      gender_presentation: female
+      identity_context:
+        ancestry_or_cultural_context: "South American"
+        nationality: optional
+      morphology:
+        face_shape: "rounded oval face, full cheeks, softly tapered chin"
+        eye_geometry: "dark round almond eyes, medium spacing, expressive"
+        nose_geometry: "medium-low bridge, medium base, soft tip"
+        lip_geometry: "medium-full lips, gently shaped mouth"
+      surface_appearance:
+        fitzpatrick_type: IV
+        undertone: neutral-warm
+        freckles: none
+        skin_texture: natural
+      presentation:
+        hairstyle: "dark straight or wavy hair, loose or braided"
+        clothing: "casual modern dress or blouse"
+        jewellery: "small earrings"
+        setting: "daylight portrait"
